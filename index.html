@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Открой, когда…</title>
+<style>
+:root{--bg1:#fdeef3;--bg2:#efe9fb;--ink:#5b3a4a;--card:#ffffffcc;--bub:#ffffff;--acc:#e98fae;--line:#f1c9d6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg1:#2b1d28;--bg2:#221d33;--ink:#f6e3ea;--card:#3a2a35cc;--bub:#4a3543;--line:#5a4150}}
+:root[data-theme="dark"]{--bg1:#2b1d28;--bg2:#221d33;--ink:#f6e3ea;--card:#3a2a35cc;--bub:#4a3543;--line:#5a4150}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;min-height:100vh;font-family:-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg1);background-image:linear-gradient(160deg,var(--bg1),var(--bg2));background-attachment:fixed;overflow-x:hidden}
+.bg{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.bg span{position:absolute;bottom:-40px;opacity:.45;animation:rise linear infinite}
+@keyframes rise{to{transform:translateY(-115vh) rotate(30deg);opacity:0}}
+header{position:relative;text-align:center;padding:30px 16px 6px}
+h1{margin:0;font-size:clamp(26px,7vw,40px);font-weight:700}
+header p{margin:8px 0 0;opacity:.7}
+.tools{position:relative;text-align:center;margin:10px}
+.btn{font:inherit;border:0;border-radius:999px;padding:11px 24px;background:var(--acc);color:#fff;cursor:pointer;box-shadow:0 4px 14px #e98fae55}
+.btn.ghost{background:transparent;color:var(--ink);box-shadow:none;border:1px solid var(--acc)}
+.list{position:relative;display:flex;flex-direction:column;gap:12px;max-width:560px;margin:14px auto 50px;padding:0 16px}
+.card{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:20px;background:var(--card);backdrop-filter:blur(6px);border:1px solid var(--line);cursor:pointer;box-shadow:0 6px 18px #b0708022;transition:transform .2s}
+.card:active{transform:scale(.98)}
+.av{flex:none;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;background:linear-gradient(135deg,var(--c),var(--c2))}
+.card b{display:block;font-size:16px;line-height:1.25}
+.card small{opacity:.6;font-size:13px}
+.dot{margin-left:auto;flex:none;width:10px;height:10px;border-radius:50%;background:var(--acc)}
+.card.secret{border:2px solid #ffd36b;background:linear-gradient(135deg,#fff3c9cc,#ffd9e8cc,#e9dcffcc);color:#5b3a4a;animation:glow 2.4s ease-in-out infinite;order:99}
+.card.secret .av{background:linear-gradient(135deg,#ffe08a,#f9a8c9)}
+@keyframes glow{50%{box-shadow:0 0 26px #ffc94d}}
+.add{display:none;justify-content:center;border:2px dashed var(--acc);border-radius:20px;padding:16px;font-size:30px;color:var(--acc);cursor:pointer;order:100}
+body.editing .add{display:flex}
+.chat{position:fixed;inset:0;z-index:10;display:none;flex-direction:column;background:var(--bg1);background-image:linear-gradient(160deg,var(--bg1),var(--bg2))}
+.chat.on{display:flex;animation:up .35s}
+@keyframes up{from{transform:translateY(30px);opacity:0}}
+.top{display:flex;align-items:center;gap:12px;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px;background:var(--card);border-bottom:1px solid var(--line);backdrop-filter:blur(8px)}
+.top .av{width:40px;height:40px;font-size:20px}
+.top h2{margin:0;font-size:15px;line-height:1.25;font-weight:600;flex:1}
+.x{font-size:24px;background:none;border:0;color:var(--ink);padding:4px 8px;cursor:pointer}
+.msgs{flex:1;overflow-y:auto;padding:16px 14px;display:flex;flex-direction:column;gap:8px}
+.b{max-width:88%;align-self:flex-start;background:var(--bub);padding:10px 14px 6px;border-radius:18px 18px 18px 4px;line-height:1.5;font-size:16px;white-space:pre-wrap;box-shadow:0 2px 8px #b0708022;animation:pop .3s}
+.b i{display:block;text-align:right;font-style:normal;font-size:11px;opacity:.5;margin-top:2px}
+@keyframes pop{from{transform:scale(.85) translateY(8px);opacity:0}}
+.ty{display:flex;gap:5px;padding:14px 16px}
+.ty u{width:8px;height:8px;border-radius:50%;background:var(--acc);opacity:.4;animation:bl 1s infinite}
+.ty u:nth-child(2){animation-delay:.2s}.ty u:nth-child(3){animation-delay:.4s}
+@keyframes bl{50%{opacity:1;transform:translateY(-4px)}}
+.hug{height:70px;width:230px;position:relative;font-size:40px;white-space:normal}
+.hug span{position:absolute;top:10px;transition:all 1.6s}
+.hug .l{left:10px}.hug .r{right:10px}
+.hug.on .l{left:70px}.hug.on .r{right:70px}
+.hug .h{left:50%;top:-4px;transform:translateX(-50%) scale(0);opacity:0;font-size:30px}
+.hug.on .h{transform:translateX(-50%) scale(1);opacity:1;transition-delay:1.4s}
+.foot{padding:12px 14px calc(14px + env(safe-area-inset-bottom,0px));text-align:center;opacity:0;pointer-events:none;transition:opacity .6s}
+.foot.on{opacity:1;pointer-events:auto}
+.ed{display:flex;flex-direction:column;gap:10px}
+.ed input,.ed textarea{font:inherit;font-size:16px;color:var(--ink);background:var(--bub);border:1px dashed var(--acc);border-radius:12px;padding:10px}
+.ed textarea{min-height:46vh;resize:vertical}
+.fall{position:fixed;top:-30px;z-index:20;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(40deg)}}
+</style>
+</head>
+<body>
+<div class="bg" id="bg"></div>
+<header><h1>Открой, когда… 💌</h1><p>сообщения для тебя на любой случай</p></header>
+<div class="tools"><button class="btn ghost" id="editBtn">✏️ Редактировать письма</button></div>
+<div class="list" id="list"></div>
+<div class="chat" id="chat">
+  <div class="top"><button class="x" id="back">‹</button><div class="av" id="tav"></div><h2 id="tt"></h2></div>
+  <div class="msgs" id="msgs"></div>
+  <div class="foot" id="foot"><button class="btn" id="cl">Закрыть письмо</button></div>
+</div>
+<script>
+/* ====== ПИСЬМА ====== */
+const DEFAULTS = [
+ {id:'sad',emoji:'💗',when:'грустно',title:'Открой, когда грустно',c:'#fbd3de',c2:'#f4b6c8',
+  text:`Моя хорошая,\n\nесли ты читаешь это, значит, сегодня нелегко. Я не знаю точно, что случилось, но хочу, чтобы ты знала: ты с этим не одна.\n\nМне не нужно, чтобы ты что-то объясняла или сразу становилась «в порядке». Можно просто грустить, можно молчать, можно лежать и ничего не делать. Я всё равно рядом, даже когда между нами экран или километры.\n\nПлохие дни проходят, а ты у меня остаёшься. И твоя улыбка для меня очень важна, честно, я без неё скучаю. Давай я тебе позвоню? Или напиши мне просто «мне плохо», этого достаточно.\n\nЯ тебя очень люблю.`},
+ {id:'miss',emoji:'🥺',when:'скучаешь по мне',title:'Открой, когда скучаешь по мне',c:'#e4d9fa',c2:'#d3c2f3',
+  text:`Привет, любимая.\n\nЯ тоже скучаю. Правда. Бывает, ловлю себя на том, что держу телефон и жду, когда ты напишешь, а потом понимаю, что просто хочу тебя увидеть.\n\nХочу обнять тебя крепко-крепко, спрятать в себе и ничего не говорить. Хочу сидеть рядом и слушать, как ты рассказываешь про свой день.\n\nОсталось совсем немного до нашей встречи, и я уже считаю часы. А пока закрой глаза и представь, что я рядом и держу тебя за руку. Я правда рядом.`},
+ {id:'smile',emoji:'😊',when:'хочешь улыбнуться',title:'Открой, когда хочешь улыбнуться',c:'#ffe7c9',c2:'#fdd2a8',
+  text:`Так, срочное объявление!\n\nНа основании строгих наблюдений установлено: ты самая милая девочка в радиусе всех известных мне километров. Это научный факт, не обсуждается.\n\nТакже выяснилось, что когда ты смеёшься, у меня внутри включается маленький обогреватель. А когда ты морщишь нос, я готов простить тебе всё, даже то, что ты воруешь у меня одеяло.\n\nА теперь, пожалуйста, улыбнись. Я знаю, что ты сейчас улыбнулась, хоть и пытаешься делать серьёзное лицо 😌\n\nВидишь? Работает.`},
+ {id:'doubt',emoji:'❤️',when:'сомневаешься в моей любви',title:'Открой, когда сомневаешься в моей любви',c:'#fbc9cf',c2:'#f2a3ae',
+  text:`Любимая,\n\nесли у тебя появились сомнения, давай я скажу всё честно.\n\nЯ безумно сильно тебя люблю. Ты мне очень дорога, и я не хочу тебя терять. Ты не надоела мне и не можешь надоесть. Это не «наверное» и не «пока что», это то, что я чувствую каждый день, и с каждым днём всё больше.\n\nТы особенная, и дело не только в том, какая ты красивая. Дело в том, как ты смеёшься, как заботишься, как смотришь на меня. Я ценю каждый наш момент, даже самые обычные: когда мы просто лежим рядом и молчим.\n\nЕсли тебе снова станет страшно, приходи и спрашивай. Я отвечу ещё раз. И ещё. Столько раз, сколько нужно.`},
+ {id:'sleep',emoji:'🌙',when:'перед сном',title:'Открой перед сном',c:'#cfd9f5',c2:'#b8c6ee',
+  text:`Сладких снов, моя хорошая.\n\nТы сегодня большая молодец. Всё, что не успела, подождёт до завтра. Всё, что тревожило, тоже подождёт.\n\nУкройся потеплее, выдохни и отпусти этот день. Я мысленно обнимаю тебя и сижу рядом, пока ты засыпаешь.\n\nПусть тебе приснится что-нибудь тёплое. Если приснюсь я, то передавай привет 🙂\n\nСпокойной ночи. Я люблю тебя очень сильно.`},
+ {id:'hug',emoji:'🫂',when:'нужны объятия',title:'Открой, когда тебе нужны объятия',type:'hug',c:'#d3eee3',c2:'#bfe3d3',
+  text:`Иди сюда.\n\nПредставь, что я подхожу сзади, обнимаю тебя обеими руками и кладу подбородок тебе на макушку. Ты чувствуешь, как всё лишнее отпускает.\n\nМне сейчас так хочется тебя обнять, что почти больно. Поэтому держу тебя вот так, пока ты не скажешь «хватит». А ты не скажешь, я знаю.\n\nПобудь здесь сколько нужно. Я никуда не спешу.`},
+ {id:'random',emoji:'💕',when:'просто так',title:'Открой просто так',c:'#fcd5e8',c2:'#f7b8d7',
+  text:`Без повода.\n\nПросто захотелось сказать, что я тебя люблю. И что ты красивая, и когда ты этого не замечаешь, мне хочется показать тебе тебя моими глазами.\n\nЯ не хочу ждать праздников и особых дней, чтобы напомнить тебе об этом. Поэтому делаю это сейчас, а потом буду делать снова.\n\nСпасибо, что ты есть.`},
+ {id:'secret',emoji:'👑',when:'секретное',title:'Открой, когда захочешь почувствовать себя самой любимой девочкой на свете',type:'secret',
+  text:`Ты самая любимая девочка на свете. Не «одна из», а именно самая.\n\nЯ люблю тебя безумно. Люблю, когда ты смеёшься, когда ворчишь, когда прячешь лицо за телефоном на фото, а я всё равно знаю, что под ним улыбка. Люблю, как ты засыпаешь рядом, как держишь меня за руку, как пишешь мне «сладких снов».\n\nТы научила меня, что можно быть нежным и не бояться этого. С тобой даже обычный вечер кажется праздником.\n\nЯ не обещаю, что у нас всегда всё будет гладко. Но обещаю, что буду рядом, буду разговаривать, а не молчать, и буду выбирать тебя каждый день. Снова и снова.\n\nС каждым днём я люблю тебя всё больше и больше. Ты моя. А я твой.`}
+];
+/* ==================== */
+const KEY='openWhen.v2';
+let letters;try{letters=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(!Array.isArray(letters)||!letters.length)letters=JSON.parse(JSON.stringify(DEFAULTS));
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(letters))}catch(e){}};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const sl=ms=>new Promise(r=>setTimeout(r,ms));
+let editing=false,run=0;
+
+for(let i=0;i<14;i++){const s=document.createElement('span');s.textContent=['💗','🤍','✨','💕','🌸'][i%5];
+ s.style.cssText=`left:${Math.random()*100}%;font-size:${12+Math.random()*16}px;animation-duration:${14+Math.random()*16}s;animation-delay:-${Math.random()*20}s`;$('bg').appendChild(s)}
+
+function render(){const g=$('list');g.innerHTML='';
+ letters.forEach(l=>{const d=document.createElement('div');const sec=l.type==='secret';
+  d.className='card'+(sec?' secret':'');d.style.cssText=`--c:${l.c||'#fbd3de'};--c2:${l.c2||'#f4b6c8'}`;
+  d.innerHTML=`<div class="av">${esc(l.emoji)}</div><div><b>${esc(l.title)}</b><small>${sec?'только для тебя ✨':'нажми, чтобы открыть'}</small></div><span class="dot"></span>`;
+  d.onclick=()=>openLetter(l.id);g.appendChild(d)});
+ const a=document.createElement('div');a.className='add';a.textContent='＋';a.onclick=()=>{const l={id:'c'+Date.now(),emoji:'💌',title:'Открой, когда…',text:'Напиши здесь своё письмо…'};letters.push(l);save();render();openLetter(l.id)};g.appendChild(a)}
+
+const clock=()=>new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+function scroll(){const m=$('msgs');m.scrollTop=m.scrollHeight}
+function bubble(html,extra){const b=document.createElement('div');b.className='b'+(extra?' '+extra:'');b.innerHTML=html+`<i>${clock()}</i>`;return b}
+
+async function openLetter(id){const l=letters.find(x=>x.id===id);if(!l)return;const t=++run;
+ $('chat').classList.add('on');$('foot').classList.remove('on');
+ $('tav').textContent=l.emoji;$('tav').style.cssText=`--c:${l.c||'#fbd3de'};--c2:${l.c2||'#f4b6c8'}`;
+ const box=$('msgs');box.innerHTML='';
+ if(editing){$('tt').textContent='Редактирование';
+  box.innerHTML=`<div class="ed"><input id="eE" value="${esc(l.emoji)}" maxlength="4"><input id="eT" value="${esc(l.title)}"><textarea id="eX">${esc(l.text)}</textarea><button class="btn" id="sv">Сохранить</button><button class="btn ghost" id="dl">Удалить письмо</button></div>`;
+  $('sv').onclick=()=>{l.text=$('eX').value;l.title=$('eT').value||l.title;l.emoji=$('eE').value||l.emoji;save();closeChat();render()};
+  $('dl').onclick=()=>{if(confirm('Удалить это письмо?')){letters=letters.filter(x=>x!==l);save();closeChat();render()}};return}
+ $('tt').textContent=l.title;
+ const ps=l.text.split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean);
+ if(l.type==='hug'){const h=bubble('<div class="hug"><span class="l">🧍</span><span class="r">🧍</span><span class="h">💞</span></div>');box.append(h);setTimeout(()=>h.querySelector('.hug').classList.add('on'),300);await sl(2200);if(t!==run)return}
+ for(const p of ps){const ty=document.createElement('div');ty.className='b ty';ty.innerHTML='<u></u><u></u><u></u>';box.append(ty);scroll();
+  await sl(Math.min(600+p.length*12,1900));if(t!==run)return;ty.remove();box.append(bubble(esc(p)));scroll();await sl(350);if(t!==run)return}
+ if(l.type==='secret')hearts(70);
+ $('foot').classList.add('on')}
+
+function closeChat(){run++;$('chat').classList.remove('on')}
+$('cl').onclick=closeChat;$('back').onclick=closeChat;
+function hearts(n){for(let i=0;i<n;i++){const s=document.createElement('span');s.className='fall';s.textContent=['💖','💗','💕','💘','✨'][i%5];
+ s.style.cssText=`left:${Math.random()*100}vw;font-size:${16+Math.random()*26}px;animation-duration:${3+Math.random()*3}s;animation-delay:${Math.random()*2.5}s`;
+ document.body.appendChild(s);setTimeout(()=>s.remove(),7000)}}
+$('editBtn').onclick=()=>{editing=!editing;document.body.classList.toggle('editing',editing);$('editBtn').textContent=editing?'✅ Готово':'✏️ Редактировать письма'};
+render();
+</script>
+</body>
+</html>
