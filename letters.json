@@ -94,6 +94,17 @@
       "type": "secret",
       "unlock": "",
       "audio": ""
+    },
+    {
+      "id": "l1795051821173",
+      "emoji": "💌",
+      "title": "назар лох",
+      "text": "",
+      "c": "#fbd3de",
+      "c2": "#f4b6c8",
+      "type": "",
+      "unlock": "",
+      "audio": ""
     }
   ]
 }
