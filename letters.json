@@ -14,7 +14,14 @@
         "photo": "photos/1795089253270-1.jpg"
       }
     ],
-    "coupons": [],
+    "coupons": [
+      {
+        "id": "i1795098460275",
+        "emoji": "",
+        "title": "послать нахуй",
+        "text": ""
+      }
+    ],
     "checklist": [],
     "gallery": [],
     "quiz": [],
