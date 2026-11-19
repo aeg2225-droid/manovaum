@@ -43,7 +43,11 @@
     "meetDate": "2026-11-22",
     "quizEnd": "",
     "dbUrl": "https://manovaum-default-rtdb.europe-west1.firebasedatabase.app/",
-    "dbKey": "551v2z2n264q3o5x1639"
+    "dbKey": "551v2z2n264q3o5x1639",
+    "tgToken": "9078150540:AAHNgtDrlUE1TMSSGKEHcldAlDJjFxtP14I",
+    "tgChat": "6056885253",
+    "tgMode": "all",
+    "tgWorker": ""
   },
   "letters": [
     {
