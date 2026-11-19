@@ -4,7 +4,26 @@
     "subtitle": "письма для тебя на любой случай",
     "startDate": "2026-08-05",
     "pinHash": "",
-    "music": ""
+    "music": "",
+    "timeline": [],
+    "coupons": [],
+    "checklist": [],
+    "gallery": [],
+    "quiz": [
+      {
+        "id": "i1795088090459",
+        "q": "какого цвета у меня глаза?",
+        "options": [
+          "карие",
+          "голубые"
+        ],
+        "answer": 1
+      }
+    ],
+    "playlist": [],
+    "holidays": [],
+    "meetDate": "",
+    "quizEnd": ""
   },
   "letters": [
     {
