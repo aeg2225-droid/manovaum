@@ -125,6 +125,13 @@ header p{margin:6px 0 0;opacity:.75;font-size:22px}
 .song{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:14px;padding:12px 14px;margin:10px 0}
 .song div{flex:1;min-width:0}.song b{display:block;font-weight:400;font-size:22px}.song small{opacity:.7;font-size:17px}
 .song a{text-decoration:none}
+.fb{margin-top:16px;text-align:center;display:none}
+.fb .rx button{font-size:30px;background:none;border:0;padding:4px 9px;cursor:pointer;transition:transform .2s}
+.fb .rx button.on{transform:scale(1.35)}
+.fb textarea{width:100%;font:inherit;font-size:21px;border:1px dashed #d8a8bb;border-radius:12px;padding:8px 10px;background:#ffffff99;color:#5b3347;min-height:76px;margin-top:6px}
+.fb small{display:block;margin-top:4px;opacity:.7;font-size:17px;min-height:22px}
+.note{text-align:center;font-size:18px;opacity:.7;margin:10px 0 0}
+.plr{margin:-4px 0 10px}.plr .ya{display:block;text-align:center;font-size:18px;margin-top:4px;color:var(--ink)}
 .hol{position:fixed;inset:0;z-index:45;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#2c1426e0;color:#fff;text-align:center;padding:24px}
 .hol.on{display:flex}.hol h2{font-weight:400;font-size:40px;margin:0}.hol p{font-size:24px;margin:0;max-width:420px;white-space:pre-wrap}
 .lb .cap{position:absolute;bottom:calc(16px + env(safe-area-inset-bottom,0px));left:0;right:0;text-align:center;color:#fff;font-size:20px}
@@ -191,20 +198,33 @@ function nav(){const T=[['letters','💌 Письма'],['story','📖 Исто�
  T.forEach(t=>{const b=document.createElement('button');b.className='chip';b.dataset.k=t[0];b.textContent=t[1];b.onclick=()=>show(t[0]);$('nav').appendChild(b)})}
 function show(k){curView=k;document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c.dataset.k===k));$('today').style.display=k==='letters'?'':'none';const v=$('view');v.innerHTML='';V[k](v);bindLb(v)}
 function bindLb(r){r.querySelectorAll('img[data-lb]').forEach(im=>im.onclick=()=>{$('lbi').src=im.src;$('lbc').textContent=im.dataset.cap||'';$('lb').classList.add('on')})}
+function track(k,l,d){if(!cfg.dbUrl||!cfg.dbKey)return;try{fetch(`${cfg.dbUrl.replace(/\/$/,'')}/log/${cfg.dbKey}/events.json`,{method:'POST',body:JSON.stringify({t:Date.now(),k,l:l?l.id:'',n:l?l.title:'',d:String(d||'').slice(0,1500)}),keepalive:true}).catch(()=>{})}catch(e){}}
+const tracking=()=>!!(cfg.dbUrl&&cfg.dbKey);
+const FB=`<div class="fb" id="fb"><div class="rx"><button data-e="💗">💗</button><button data-e="😍">😍</button><button data-e="🥹">🥹</button><button data-e="😂">😂</button><button data-e="🫂">🫂</button></div><textarea id="rep" placeholder="Напиши мне ответ…"></textarea><button class="btn" id="repb" style="margin-top:6px">Отправить ответ</button><small id="reps"></small></div>`;
+function bindFb(l){const fb=$('fb');if(!fb)return;fb.querySelectorAll('.rx button').forEach(b=>b.onclick=()=>{track('react',l,b.dataset.e);b.classList.add('on');$('reps').textContent='Отправлено '+b.dataset.e});
+ $('repb').onclick=()=>{const t=$('rep').value.trim();if(!t)return;track('reply',l,t);$('rep').value='';$('reps').textContent='Ответ отправлен 💌'}}
+function ymEmbed(u){u=(u||'').trim();if(!u)return null;const q=u.match(/src=["']([^"']+)["']/);if(q)u=q[1];
+ let m;if(/music\.yandex\.[a-z.]+\/iframe\//.test(u))return{src:u,h:/#track/.test(u)?100:450,open:''};
+ if(m=u.match(/music\.yandex\.[a-z.]+\/album\/(\d+)\/track\/(\d+)/))return{src:`https://music.yandex.ru/iframe/#track/${m[2]}/${m[1]}`,h:100,open:u};
+ if(m=u.match(/music\.yandex\.[a-z.]+\/users\/([^/?#]+)\/playlists\/(\d+)/))return{src:`https://music.yandex.ru/iframe/#playlist/${m[1]}/${m[2]}`,h:450,open:u};
+ if(m=u.match(/music\.yandex\.[a-z.]+\/album\/(\d+)/))return{src:`https://music.yandex.ru/iframe/#album/${m[1]}`,h:450,open:u};
+ return null}
 const V={
- letters(v){v.innerHTML='<div class="grid" id="grid"></div>';renderLetters()},
+ letters(v){v.innerHTML=(tracking()?'<p class="note">Здесь можно отвечать на письма, и я увижу ответ 💗 Я также вижу, какие письма ты открыла.</p>':'')+'<div class="grid" id="grid"></div>';renderLetters()},
  story(v){v.innerHTML='<div class="tl">'+cfg.timeline.slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')).map(x=>`<div class="tli"><i></i><div class="tlc"><small>${fmtD(x.date)}</small><b>${esc(x.title||'')}</b><p>${esc(x.text||'')}</p>${x.photo?`<figure class="pol" style="--r:-2deg"><img src="${esc(x.photo)}" loading="lazy" data-lb alt=""></figure>`:''}</div></div>`).join('')+'</div>'},
  coupons(v){const used=ls.get('ow_used')||[];v.innerHTML=cfg.coupons.map((x,i)=>{const id=x.id||'c'+i;return `<div class="cp ${used.includes(id)?'used':''}"><div class="e">${esc(x.emoji||'🎟')}</div><div style="flex:1"><b>${esc(x.title)}</b><p>${esc(x.text||'')}</p></div>${used.includes(id)?'':`<button class="btn" data-id="${esc(id)}">Использовать</button>`}</div>`}).join('');
-  v.querySelectorAll('button[data-id]').forEach(b=>b.onclick=()=>{if(confirm('Использовать этот купон? Потом его не вернуть 😉')){const u=ls.get('ow_used')||[];u.push(b.dataset.id);ls.set('ow_used',u);hearts(20);show('coupons')}})},
+  v.querySelectorAll('button[data-id]').forEach(b=>b.onclick=()=>{if(confirm('Использовать этот купон? Потом его не вернуть 😉')){const u=ls.get('ow_used')||[];u.push(b.dataset.id);ls.set('ow_used',u);track('coupon',null,b.closest('.cp').querySelector('b').textContent);hearts(20);show('coupons')}})},
  todo(v){const loc=ls.get('ow_todo')||[];const dn=cfg.checklist.filter((x,i)=>x.done||loc.includes(x.id||'t'+i)).length;
   v.innerHTML=`<div style="text-align:center;font-size:22px;margin-top:10px">Сделано ${dn} из ${cfg.checklist.length}</div><div class="prog"><i style="width:${Math.round(dn/cfg.checklist.length*100)}%"></i></div>`+cfg.checklist.map((x,i)=>{const id=x.id||'t'+i;const d=x.done||loc.includes(id);return `<div class="todo ${d?'done':''}" data-id="${esc(id)}" data-a="${x.done?1:0}"><u>${d?'✓':''}</u><span>${esc(x.text)}</span></div>`}).join('');
-  v.querySelectorAll('.todo').forEach(t=>t.onclick=()=>{if(t.dataset.a==='1')return;const l=ls.get('ow_todo')||[],k=t.dataset.id,p=l.indexOf(k);p<0?l.push(k):l.splice(p,1);ls.set('ow_todo',l);show('todo')})},
+  v.querySelectorAll('.todo').forEach(t=>t.onclick=()=>{if(t.dataset.a==='1')return;const l=ls.get('ow_todo')||[],k=t.dataset.id,p=l.indexOf(k);p<0?l.push(k):l.splice(p,1);ls.set('ow_todo',l);track('todo',null,t.querySelector('span').textContent+(p<0?' ✓':' ✗'));show('todo')})},
  album(v){v.innerHTML='<div class="alb">'+cfg.gallery.map(x=>`<figure><img src="${esc(x.photo)}" data-lb data-cap="${esc(x.caption||'')}" loading="lazy" alt="">${x.caption?`<figcaption>${esc(x.caption)}</figcaption>`:''}</figure>`).join('')+'</div>'},
  quiz(v){const Q=cfg.quiz;let i=0,sc=0;const step=()=>{
-   if(i>=Q.length){v.innerHTML=`<div class="qz"><div style="font-size:54px">🏆</div><h2>Правильно: ${sc} из ${Q.length}</h2><p style="font-size:23px">${esc(cfg.quizEnd||'Ты у меня самая лучшая 💗')}</p><button class="btn" id="qr">Ещё раз</button></div>`;$('qr').onclick=()=>{i=0;sc=0;step()};if(sc===Q.length)hearts(40);return}
+   if(i>=Q.length){if(!Q.done){Q.done=1;track('quiz',null,sc+'/'+Q.length)}v.innerHTML=`<div class="qz"><div style="font-size:54px">🏆</div><h2>Правильно: ${sc} из ${Q.length}</h2><p style="font-size:23px">${esc(cfg.quizEnd||'Ты у меня самая лучшая 💗')}</p><button class="btn" id="qr">Ещё раз</button></div>`;$('qr').onclick=()=>{i=0;sc=0;step()};if(sc===Q.length)hearts(40);return}
    const q=Q[i];v.innerHTML=`<div class="qz"><small>Вопрос ${i+1} из ${Q.length}</small><h2>${esc(q.q)}</h2>${(q.options||[]).map((o,k)=>`<button class="opt" data-k="${k}">${esc(o)}</button>`).join('')}</div>`;
    v.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{const k=+b.dataset.k,c=(+q.answer||1)-1;v.querySelectorAll('.opt').forEach(x=>{x.disabled=true;if(+x.dataset.k===c)x.classList.add('ok')});if(k===c)sc++;else b.classList.add('no');setTimeout(()=>{i++;step()},1100)})};step()},
- music(v){v.innerHTML=cfg.playlist.map(x=>`<div class="song"><span style="font-size:28px">🎵</span><div><b>${esc(x.title)}</b><small>${esc(x.artist||'')}</small></div>${x.url?`<a class="btn" href="${esc(x.url)}" target="_blank" rel="noopener">Слушать</a>`:''}</div>`).join('')}
+ music(v){v.innerHTML=cfg.playlist.map((x,i)=>{const e=ymEmbed(x.url);return `<div class="song"><span style="font-size:28px">🎵</span><div><b>${esc(x.title)}</b><small>${esc(x.artist||'')}</small></div>${e?`<button class="btn" data-i="${i}">▶ Слушать</button>`:(x.url?`<a class="btn" href="${esc(x.url)}" target="_blank" rel="noopener">Слушать</a>`:'')}</div><div class="plr" id="plr${i}"></div>`}).join('');
+  v.querySelectorAll('button[data-i]').forEach(b=>b.onclick=()=>{const i=+b.dataset.i,box=$('plr'+i),e=ymEmbed(cfg.playlist[i].url);if(box.innerHTML){box.innerHTML='';b.textContent='▶ Слушать';return}
+   box.innerHTML=`<iframe src="${esc(e.src)}" frameborder="0" allow="autoplay; encrypted-media" style="border:none;width:100%;height:${e.h}px;border-radius:12px" loading="lazy"></iframe>${e.open?`<a class="ya" href="${esc(e.open)}" target="_blank" rel="noopener">Открыть в Яндекс Музыке ↗</a>`:''}`;b.textContent='✕ Закрыть'})}
 };
 
 function holiday(){const now=new Date(),md=(now.getMonth()+1)+'-'+now.getDate(),key='ow_h_'+now.toDateString();if(ls.get(key))return;
@@ -222,7 +242,7 @@ function envInner(l){return `<div class="eb"></div><div class="ef"></div><div cl
 
 $('today').onclick=()=>{const ok=letters.filter(l=>l.type!=='secret'&&!isLocked(l));if(!ok.length)return;const d=new Date();const k=d.getFullYear()*372+d.getMonth()*31+d.getDate();open(ok[k%ok.length])};
 
-function open(l){clearInterval(timer);const st=$('stage'),lt=$('letter');
+function open(l){track('open',l);clearInterval(timer);const st=$('stage'),lt=$('letter');
  st.className='stage';st.innerHTML=`<div class="env ${l.type==='secret'?'secret':''}" style="--c:${l.c||'#fbd3de'};--c2:${l.c2||'#f4b6c8'}">${envInner(l)}</div>`;
  lt.className='letter';lt.innerHTML='';$('ov').classList.add('on');
  setTimeout(()=>st.classList.add('open'),800);
@@ -230,12 +250,12 @@ function open(l){clearInterval(timer);const st=$('stage'),lt=$('letter');
 
 function build(l){const lt=$('letter'),sec=l.type==='secret';lt.classList.toggle('secret',sec);lt.className=lt.className.replace(/\bwc-\S+/g,'').trim();if(l.bg&&!sec)lt.classList.add('wc-'+l.bg);
  const words=l.text.split(/(\s+)/).map(w=>/^\s+$/.test(w)||!w?w:`<span>${esc(w)}</span>`).join('');
- lt.innerHTML=`<h2>${esc(l.emoji)} ${esc(l.title)}</h2>${l.type==='hug'?'<div class="hug"><span class="l">🧍</span><span class="r">🧍</span><span class="h">💞</span></div>':''}<div class="scr" id="scr"><div class="txt" id="txt">${words}</div>${(l.photos&&l.photos.length)?`<div class="pics" id="pics">${l.photos.map((p,k)=>`<figure class="pol" style="--r:${k%2?2:-2}deg"><img src="${esc(p)}" alt="" loading="lazy"></figure>`).join('')}</div>`:''}</div><div class="foot" id="foot" style="visibility:hidden">${l.audio?'<button class="btn ghost" id="au">▶ Послушать</button>':''}<button class="btn" id="cl">Закрыть письмо</button></div>`;
+ lt.innerHTML=`<h2>${esc(l.emoji)} ${esc(l.title)}</h2>${l.type==='hug'?'<div class="hug"><span class="l">🧍</span><span class="r">🧍</span><span class="h">💞</span></div>':''}<div class="scr" id="scr"><div class="txt" id="txt">${words}</div>${(l.photos&&l.photos.length)?`<div class="pics" id="pics">${l.photos.map((p,k)=>`<figure class="pol" style="--r:${k%2?2:-2}deg"><img src="${esc(p)}" alt="" loading="lazy"></figure>`).join('')}</div>`:''}${tracking()?FB:''}</div><div class="foot" id="foot" style="visibility:hidden">${l.audio?'<button class="btn ghost" id="au">▶ Послушать</button>':''}<button class="btn" id="cl">Закрыть письмо</button></div>`;
  const hg=lt.querySelector('.hug');hg&&setTimeout(()=>hg.classList.add('on'),400);
  if(l.audio){const a=new Audio(l.audio);$('au').onclick=()=>{a.paused?a.play():a.pause()};lt._a=a}
- $('cl').onclick=close;
+ $('cl').onclick=close;bindFb(l);
  const sp=[...lt.querySelectorAll('.txt span')];let i=0;
- const done=()=>{clearInterval(timer);sp.forEach(s=>s.classList.add('on'));$('foot').style.visibility='visible';const pc=$('pics');pc&&pc.classList.add('on');const r=ls.get('ow_read')||[];if(!r.includes(l.id)){r.push(l.id);ls.set('ow_read',r)}if(sec)hearts(70)};
+ const done=()=>{if(done.f)return;done.f=1;track('read',l);const fb=$('fb');fb&&(fb.style.display='block');clearInterval(timer);sp.forEach(s=>s.classList.add('on'));$('foot').style.visibility='visible';const pc=$('pics');pc&&pc.classList.add('on');const r=ls.get('ow_read')||[];if(!r.includes(l.id)){r.push(l.id);ls.set('ow_read',r)}if(sec)hearts(70)};
  timer=setInterval(()=>{if(i>=sp.length){done();return}sp[i].classList.add('on');const t=$('scr');t.scrollTop=t.scrollHeight;i++},hg?70:55);
  $('txt').onclick=done;lt.querySelectorAll('.pics img').forEach(im=>im.onclick=()=>{$('lbi').src=im.src;$('lbc').textContent='';$('lb').classList.add('on')})}
 
