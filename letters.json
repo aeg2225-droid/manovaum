@@ -15,7 +15,13 @@
       }
     ],
     "coupons": [],
-    "checklist": [],
+    "checklist": [
+      {
+        "id": "i1795103549919",
+        "text": "сходить в йоко 6 декабря",
+        "done": false
+      }
+    ],
     "gallery": [],
     "quiz": [],
     "playlist": [
