@@ -21,8 +21,8 @@
     "holidays": [],
     "meetDate": "",
     "quizEnd": "",
-    "dbUrl": "https://console.firebase.google.com/project/manovaum/database/manovaum-default-rtdb/data/~2F",
-    "dbKey": ""
+    "dbUrl": "https://manovaum-default-rtdb.europe-west1.firebasedatabase.app/",
+    "dbKey": "551v2z2n264q3o5x1639"
   },
   "letters": [
     {
