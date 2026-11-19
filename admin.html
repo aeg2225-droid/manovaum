@@ -17,6 +17,8 @@ h1{font-family:"Marck Script",cursive;font-weight:400;font-size:34px;margin:0;te
 label{display:block;font-size:13px;opacity:.7;margin:10px 0 3px}
 input,textarea,select{width:100%;font:inherit;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:10px;padding:10px}
 input[type=checkbox]{width:24px;height:24px}
+input[type=date]{display:block;min-width:0;max-width:100%;height:46px;-webkit-appearance:none;appearance:none;text-align:left}
+input[type=date]::-webkit-date-and-time-value{text-align:left;min-height:1.2em}
 textarea{min-height:150px}
 .btn{font:inherit;border:0;border-radius:999px;padding:10px 18px;background:var(--acc);color:#fff;cursor:pointer}
 .btn.g{background:transparent;color:var(--ink);border:1px solid var(--line)}
@@ -47,9 +49,10 @@ textarea{min-height:150px}
 <body>
 <h1>Управление сайтом 💌</h1>
 <div class="wrap">
+ <div style="text-align:center"><button class="btn g" id="logout" style="margin-top:8px;font-size:14px">⚙ Сменить репозиторий / токен</button></div>
  <div class="box" id="login">
   <b>Подключение к GitHub</b>
-  <label>Репозиторий (владелец/название)</label><input id="repo" value="aeg2225-droid/manovaum">
+  <label>Репозиторий (владелец/название)</label><input id="repo" placeholder="владелец/название, например santsneki/мой-сайт">
   <label>Ветка</label><input id="br" value="main">
   <label>Токен GitHub (хранится только в этом телефоне)</label><input id="tok" type="password" autocomplete="off" placeholder="github_pat_...">
   <div class="row" style="margin-top:12px"><button class="btn" id="conn">Подключиться</button></div>
@@ -127,9 +130,10 @@ const mark=()=>{dirty=true;say('Есть неопубликованные изм
 const api=(p,o={})=>fetch(`https://api.github.com/repos/${S.repo}/contents/${p}`+(o.method?'':`?ref=${S.br}&t=${Date.now()}`),{...o,headers:{Authorization:'Bearer '+S.tok,Accept:'application/vnd.github+json','Content-Type':'application/json'}});
 const rawUrl=p=>p?`https://raw.githubusercontent.com/${S.repo}/${S.br}/${p}`:'';
 if(S.tok){$('repo').value=S.repo;$('br').value=S.br;$('tok').value=S.tok;connect()}
+$('logout').onclick=()=>{localStorage.removeItem('ow_admin');location.reload()};
 $('conn').onclick=()=>{S={repo:$('repo').value.trim(),br:$('br').value.trim()||'main',tok:$('tok').value.trim()};connect()};
 async function connect(){say('Подключаюсь…');$('bar').style.display='flex';
- try{const r=await api('letters.json');if(!r.ok)throw new Error(r.status===404?'Файл letters.json не найден в репозитории':r.status===401||r.status===403?'Токен не подходит или нет прав на запись':'Ошибка '+r.status);
+ try{const r=await api('letters.json');if(!r.ok)throw new Error(r.status===404?'Не найден репозиторий или файл letters.json. Проверь, что репозиторий указан как владелец/название и токен выдан именно для него':r.status===401||r.status===403?'Токен не подходит или нет прав на запись':'Ошибка '+r.status);
   const j=await r.json();sha1=j.sha;data=JSON.parse(b64dec(j.content));data.config=data.config||{};data.letters=data.letters||[];Object.keys(SCH).forEach(k=>data.config[k]=data.config[k]||[]);
   localStorage.setItem('ow_admin',JSON.stringify(S));$('login').style.display='none';$('main').style.display='block';fill();draw();drawSecs();say('Подключено ✓');loadEv();setInterval(()=>{if(!$('act').classList.contains('on'))loadEv()},60000)}
  catch(e){say(e.message,1);$('login').style.display='block'}}
@@ -230,7 +234,7 @@ $('pub').onclick=async()=>{if(!data)return;const c=data.config;Object.entries(SE
  const p=$('cPin').value.trim();if(p==='-')c.pinHash='';else if(p)c.pinHash=await sha(p);
  say('Публикую…');
  try{const r=await api('letters.json',{method:'PUT',body:JSON.stringify({message:'update site',content:b64enc(JSON.stringify(data,null,2)),sha:sha1,branch:S.br})});
-  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(r.status===409?'Файл уже изменили в другом месте, обнови страницу':(e.message||'Ошибка '+r.status))}
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(r.status===409?'Файл уже изменили в другом месте, обнови страницу':r.status===404?'Not Found: репозиторий '+S.repo+' или токен указаны неверно. Нажми «Сменить репозиторий / токен» вверху':(e.message||'Ошибка '+r.status))}
   sha1=(await r.json()).content.sha;dirty=false;$('cPin').value='';say('Опубликовано ✓ Сайт обновится через 1–2 минуты')}
  catch(e){say(e.message,1)}};
 window.onbeforeunload=()=>dirty?'Есть неопубликованные изменения':undefined;
