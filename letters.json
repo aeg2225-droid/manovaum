@@ -9,17 +9,7 @@
     "coupons": [],
     "checklist": [],
     "gallery": [],
-    "quiz": [
-      {
-        "id": "i1795088090459",
-        "q": "какого цвета у меня глаза?",
-        "options": [
-          "карие",
-          "голубые"
-        ],
-        "answer": 1
-      }
-    ],
+    "quiz": [],
     "playlist": [],
     "holidays": [],
     "meetDate": "",
