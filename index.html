@@ -198,8 +198,12 @@ function nav(){const T=[['letters','💌 Письма'],['story','📖 Исто�
  T.forEach(t=>{const b=document.createElement('button');b.className='chip';b.dataset.k=t[0];b.textContent=t[1];b.onclick=()=>show(t[0]);$('nav').appendChild(b)})}
 function show(k){curView=k;document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c.dataset.k===k));$('today').style.display=k==='letters'?'':'none';const v=$('view');v.innerHTML='';V[k](v);bindLb(v)}
 function bindLb(r){r.querySelectorAll('img[data-lb]').forEach(im=>im.onclick=()=>{$('lbi').src=im.src;$('lbc').textContent=im.dataset.cap||'';$('lb').classList.add('on')})}
-function track(k,l,d){if(!cfg.dbUrl||!cfg.dbKey)return;try{fetch(`${cfg.dbUrl.replace(/\/$/,'')}/log/${cfg.dbKey}/events.json`,{method:'POST',body:JSON.stringify({t:Date.now(),k,l:l?l.id:'',n:l?l.title:'',d:String(d||'').slice(0,1500)}),keepalive:true}).catch(()=>{})}catch(e){}}
-const tracking=()=>!!(cfg.dbUrl&&cfg.dbKey);
+const tgOn=()=>!!((cfg.tgToken&&cfg.tgChat)||cfg.tgWorker);
+function notify(k,l,d){if(!tgOn())return;if(cfg.tgMode==='important'&&!['react','reply','coupon','quiz'].includes(k))return;
+ const n=l?`«${l.title}»`:'';const T={open:`👁 Открыла ${n}`,read:`✔ Дочитала ${n}`,react:`${d} Реакция на ${n}`,reply:`✍️ Ответила на ${n}:\n${d}`,coupon:`🎟 Использовала купон «${d}»`,todo:`✅ ${d}`,quiz:`❓ Квиз: ${d}`};const text='💌 '+(T[k]||k);
+ try{if(cfg.tgWorker)fetch(cfg.tgWorker,{method:'POST',body:JSON.stringify({text}),keepalive:true}).catch(()=>{});else fetch(`https://api.telegram.org/bot${cfg.tgToken}/sendMessage`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:cfg.tgChat,text}),keepalive:true}).catch(()=>{})}catch(e){}}
+function track(k,l,d){notify(k,l,d);if(!cfg.dbUrl||!cfg.dbKey)return;try{fetch(`${cfg.dbUrl.replace(/\/$/,'')}/log/${cfg.dbKey}/events.json`,{method:'POST',body:JSON.stringify({t:Date.now(),k,l:l?l.id:'',n:l?l.title:'',d:String(d||'').slice(0,1500)}),keepalive:true}).catch(()=>{})}catch(e){}}
+const tracking=()=>!!((cfg.dbUrl&&cfg.dbKey)||tgOn());
 const FB=`<div class="fb" id="fb"><div class="rx"><button data-e="💗">💗</button><button data-e="😍">😍</button><button data-e="🥹">🥹</button><button data-e="😂">😂</button><button data-e="🫂">🫂</button></div><textarea id="rep" placeholder="Напиши мне ответ…"></textarea><button class="btn" id="repb" style="margin-top:6px">Отправить ответ</button><small id="reps"></small></div>`;
 function bindFb(l){const fb=$('fb');if(!fb)return;fb.querySelectorAll('.rx button').forEach(b=>b.onclick=()=>{track('react',l,b.dataset.e);b.classList.add('on');$('reps').textContent='Отправлено '+b.dataset.e});
  $('repb').onclick=()=>{const t=$('rep').value.trim();if(!t)return;track('reply',l,t);$('rep').value='';$('reps').textContent='Ответ отправлен 💌'}}

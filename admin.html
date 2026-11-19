@@ -70,6 +70,11 @@ textarea{min-height:150px}
    <label>Адрес базы Firebase (для вкладки «Активность»)</label><input id="cDb" placeholder="https://xxx-default-rtdb.firebaseio.com">
    <label>Секретный ключ</label><div class="row"><input id="cKey"><button class="btn g" id="genKey" type="button">Новый</button></div>
    <label>Правила для Firebase (скопируй в раздел Rules и нажми Publish)</label><textarea id="rules" readonly style="min-height:150px;font-size:12px"></textarea>
+   <label>Telegram: токен бота (от @BotFather)</label><input id="cTgT" type="password" autocomplete="off">
+   <label>Telegram: твой chat id (число)</label><input id="cTgC" inputmode="numeric">
+   <label>Что присылать в Telegram</label><select id="cTgM"><option value="all">Всё: открыла, дочитала, ответы, реакции…</option><option value="important">Только ответы, реакции, купоны и квиз</option></select>
+   <label>Адрес Worker (необязательно, безопаснее — токен будет скрыт)</label><input id="cTgW" placeholder="https://….workers.dev">
+   <button class="btn g" id="tgTest" type="button" style="margin-top:10px">Отправить тестовое сообщение</button><div class="hint" id="tgRes"></div>
   </div>
   <button class="btn" id="actBtn" style="width:100%;margin-top:12px">📬 Активность</button>
   <div class="box" id="list"></div>
@@ -137,10 +142,14 @@ async function connect(){say('Подключаюсь…');$('bar').style.display
   const j=await r.json();sha1=j.sha;data=JSON.parse(b64dec(j.content));data.config=data.config||{};data.letters=data.letters||[];Object.keys(SCH).forEach(k=>data.config[k]=data.config[k]||[]);
   localStorage.setItem('ow_admin',JSON.stringify(S));$('login').style.display='none';$('main').style.display='block';fill();draw();drawSecs();say('Подключено ✓');loadEv();setInterval(()=>{if(!$('act').classList.contains('on'))loadEv()},60000)}
  catch(e){say(e.message,1);$('login').style.display='block'}}
-const SET={cTitle:'title',cSub:'subtitle',cStart:'startDate',cMeet:'meetDate',cQuizEnd:'quizEnd',cMus:'music',cDb:'dbUrl',cKey:'dbKey'};
-function fill(){Object.entries(SET).forEach(([i,k])=>$(i).value=data.config[k]||'');$('cPin').value='';setRules()}
+const SET={cTitle:'title',cSub:'subtitle',cStart:'startDate',cMeet:'meetDate',cQuizEnd:'quizEnd',cMus:'music',cDb:'dbUrl',cKey:'dbKey',cTgT:'tgToken',cTgC:'tgChat',cTgM:'tgMode',cTgW:'tgWorker'};
+function fill(){Object.entries(SET).forEach(([i,k])=>$(i).value=data.config[k]||'');$('cPin').value='';if(!$('cTgM').value)$('cTgM').value='all';setRules()}
 [...Object.keys(SET),'cPin'].forEach(i=>$(i).oninput=()=>{mark();if(i==='cKey')setRules()});
 
+$('tgTest').onclick=async()=>{const t=$('cTgT').value.trim(),c=$('cTgC').value.trim(),w=$('cTgW').value.trim(),text='💌 Тест: уведомления работают ✅';$('tgRes').textContent='Отправляю…';
+ try{const r=w?await fetch(w,{method:'POST',body:JSON.stringify({text})}):await fetch(`https://api.telegram.org/bot${t}/sendMessage`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:c,text})});
+  if(r.ok)$('tgRes').textContent='Отправлено! Проверь Telegram ✓ Теперь нажми «Опубликовать на сайте».';else{const j=await r.json().catch(()=>({}));$('tgRes').textContent='Не получилось: '+(j.description||r.status)}}
+ catch(e){$('tgRes').textContent='Не получилось: '+e.message}};
 /* ---------- активность ---------- */
 let EV=[],stats={};
 const dbBase=()=>{const u=$('cDb').value.trim(),k=$('cKey').value.trim();return u&&k?`${u.replace(/\/$/,'')}/log/${k}/events.json`:''};
