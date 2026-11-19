@@ -17,7 +17,14 @@
     "checklist": [],
     "gallery": [],
     "quiz": [],
-    "playlist": [],
+    "playlist": [
+      {
+        "id": "i1795089125671",
+        "title": "имба",
+        "artist": "онда анда аа а а а а",
+        "url": "https://music.yandex.ru/album/44260161/track/156550855?utm_source=desktop&utm_medium=copy_link"
+      }
+    ],
     "holidays": [],
     "meetDate": "2026-11-19",
     "quizEnd": "",
