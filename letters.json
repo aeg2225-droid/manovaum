@@ -29,7 +29,13 @@
         "done": false
       }
     ],
-    "gallery": [],
+    "gallery": [
+      {
+        "id": "i1795107379046",
+        "photo": "photos/1795107363882-1.jpg",
+        "caption": "🥰"
+      }
+    ],
     "quiz": [],
     "playlist": [
       {
