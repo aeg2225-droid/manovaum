@@ -162,15 +162,17 @@ $('actRef').onclick=async()=>{await loadEv();drawAct()};
 function draw(){const L=$('list');L.innerHTML='<b>Письма</b>';
  data.letters.forEach((l,i)=>{const d=document.createElement('div');d.className='it';
   d.innerHTML=`<div class="em" style="background:${l.c}">${esc(l.emoji)}</div><div class="t"><b>${esc(l.title)}</b><small>${l.type==='secret'?'секретное':l.type==='hug'?'объятия':'обычное'}${l.unlock?' · с '+l.unlock:''}${(l.photos&&l.photos.length)?' · фото '+l.photos.length:''}${statStr(l.id)}</small></div><button class="ic" data-a="up">▲</button><button class="ic" data-a="dn">▼</button><button class="ic" data-a="ed">✏️</button><button class="ic" data-a="rm">🗑</button>`;
-  d.querySelectorAll('button').forEach(b=>b.onclick=()=>act(data.letters,b.dataset.a,i,()=>edit(i),draw));L.appendChild(d)})}
-function act(A,a,i,editFn,redraw,label){
+  d.querySelectorAll('button').forEach(b=>b.onclick=()=>act(data.letters,b.dataset.a,i,()=>edit(i),draw,b));L.appendChild(d)})}
+function arm(btn,txt){if(btn.dataset.arm)return true;const old=btn.textContent;btn.dataset.arm='1';btn.textContent=txt;btn.style.cssText='font-size:14px;color:#fff;background:#d63a6a;border-radius:999px;padding:6px 10px';
+ setTimeout(()=>{if(btn.isConnected){delete btn.dataset.arm;btn.textContent=old;btn.style.cssText=''}},3000);return false}
+function act(A,a,i,editFn,redraw,btn){
  if(a==='up'&&i>0)[A[i-1],A[i]]=[A[i],A[i-1]];
  if(a==='dn'&&i<A.length-1)[A[i+1],A[i]]=[A[i],A[i+1]];
- if(a==='rm'){if(!confirm('Удалить запись?'))return;A.splice(i,1)}
+ if(a==='rm'){if(!arm(btn,'Удалить?'))return;A.splice(i,1)}
  if(a==='ed')return editFn();
  mark();redraw()}
 $('add').onclick=()=>edit(-1);
-$('months').onclick=()=>{if(!confirm('Добавить 12 закрытых писем: по одному на 1-е число каждого месяца? Текст потом заполнишь сам.'))return;const n=new Date();
+$('months').onclick=()=>{if(!arm($('months'),'Точно добавить 12 писем?'))return;delete $('months').dataset.arm;const n=new Date();
  for(let k=1;k<=12;k++){const d=new Date(n.getFullYear(),n.getMonth()+k,1);const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-01`;
   data.letters.push({id:'m'+Date.now()+k,emoji:'🗓',title:'Открой '+d.toLocaleDateString('ru-RU',{day:'numeric',month:'long'}),text:'Напиши письмо на этот месяц ✍️',c:PAL[k%PAL.length][0],c2:PAL[k%PAL.length][1],type:'',unlock:iso,audio:'',photos:[]})}
  mark();draw()};
@@ -203,7 +205,7 @@ function openList(k){secKey=k;$('lT').textContent=SCH[k].t;drawList();$('lsheet'
 function drawList(){const A=data.config[secKey],L=$('lList');L.innerHTML=A.length?'':'<div class="hint">Пока пусто. Нажми «Добавить».</div>';
  A.forEach((x,i)=>{const d=document.createElement('div');d.className='it';
   d.innerHTML=`<div class="em">${x.photo?'🖼':esc(x.emoji||'•')}</div><div class="t"><b>${esc(itemTitle(x))}</b><small>${esc(x.date||x.artist||'')}${x.done?'✓ сделано':''}</small></div><button class="ic" data-a="up">▲</button><button class="ic" data-a="dn">▼</button><button class="ic" data-a="ed">✏️</button><button class="ic" data-a="rm">🗑</button>`;
-  d.querySelectorAll('button').forEach(b=>b.onclick=()=>act(A,b.dataset.a,i,()=>editItem(i),()=>{drawList();drawSecs()}));L.appendChild(d)})}
+  d.querySelectorAll('button').forEach(b=>b.onclick=()=>act(A,b.dataset.a,i,()=>editItem(i),()=>{drawList();drawSecs()},b));L.appendChild(d)})}
 $('lBack').onclick=()=>{$('lsheet').classList.remove('on');drawSecs()};
 $('lAdd').onclick=()=>editItem(-1);
 function editItem(i){secIdx=i;const A=data.config[secKey],x=i>=0?A[i]:{};secVals={...x};const F=$('eForm');F.innerHTML='';
