@@ -131,6 +131,19 @@ header p{margin:6px 0 0;opacity:.75;font-size:22px}
 .fb textarea{width:100%;font:inherit;font-size:21px;border:1px dashed #d8a8bb;border-radius:12px;padding:8px 10px;background:#ffffff99;color:#5b3347;min-height:76px;margin-top:6px}
 .fb small{display:block;margin-top:4px;opacity:.7;font-size:17px;min-height:22px}
 .note{text-align:center;font-size:18px;opacity:.7;margin:10px 0 0}
+.row3{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:12px 0}
+.mood{text-align:center;margin:12px 0;font-size:21px}.mood button{font-size:28px;background:var(--card);border:0;border-radius:50%;width:50px;height:50px;margin:3px;cursor:pointer}.mood button.on{outline:3px solid var(--acc)}
+.sug{text-align:center;margin:6px 0;font-size:20px}
+.toast{position:fixed;left:50%;bottom:calc(30px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#2c1426e6;color:#fff;padding:10px 20px;border-radius:999px;z-index:60;font-size:20px;opacity:0;transition:opacity .4s;pointer-events:none;white-space:nowrap}.toast.on{opacity:1}
+.qa textarea,.qst input{width:100%;font:inherit;font-size:21px;border:2px dashed var(--acc);border-radius:12px;padding:8px 10px;background:var(--card);color:var(--ink);min-height:46px}
+.qa textarea{min-height:100px}
+.qab{background:var(--card);border-radius:14px;padding:12px 14px;margin:10px 0;text-align:left;white-space:pre-wrap}
+.whl{position:relative;width:min(320px,86vw);margin:26px auto 14px}.whl canvas{width:100%;display:block;transition:transform 4.5s cubic-bezier(.12,.7,.1,1);border-radius:50%;box-shadow:0 6px 20px #0003}.whl .pt{position:absolute;left:50%;top:-18px;transform:translateX(-50%);font-size:34px;z-index:2}
+.qst{background:var(--card);border-radius:16px;padding:14px;margin:12px 0}.qst.lock{opacity:.5;text-align:center}.qst p{margin:6px 0;font-size:22px}.qst .btn{margin-top:8px}
+.sc{position:relative;margin:16px 0;border-radius:16px;overflow:hidden;background:var(--card);min-height:130px;padding:18px;text-align:center}.sc b{display:block;font-weight:400;font-size:27px}.sc p{margin:6px 0 0;white-space:pre-wrap}.sc canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;border-radius:16px}
+.pz{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:3px;width:min(340px,90vw);margin:16px auto;aspect-ratio:1}.pz div{background-size:300% 300%;border-radius:4px;cursor:pointer}.pz .e{background:transparent;cursor:default}
+#map{height:62vh;border-radius:16px;margin-top:12px}
+.yr{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}.yr div{background:var(--card);border-radius:16px;padding:14px;text-align:center;font-size:19px}.yr b{display:block;font-size:34px;font-weight:400;line-height:1.1}
 .plr{margin:-4px 0 10px}.plr .ya{display:block;text-align:center;font-size:18px;margin-top:4px;color:var(--ink)}
 .hol{position:fixed;inset:0;z-index:45;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#2c1426e0;color:#fff;text-align:center;padding:24px}
 .hol.on{display:flex}.hol h2{font-weight:400;font-size:40px;margin:0}.hol p{font-size:24px;margin:0;max-width:420px;white-space:pre-wrap}
@@ -157,6 +170,7 @@ header p{margin:6px 0 0;opacity:.75;font-size:22px}
 <div class="lb" id="lb"><img id="lbi" alt=""><div class="cap" id="lbc"></div></div>
 <div class="hol" id="hol"><div style="font-size:70px" id="hE">🎉</div><h2 id="hT"></h2><p id="hX"></p><button class="btn" id="hB">Спасибо 💗</button></div>
 <div class="gate" id="gate"><div style="font-size:54px">🔒</div><div style="font-size:26px">Введи наш код</div><input id="pin" type="password" inputmode="numeric" autocomplete="off"><small id="pinerr"></small><button class="btn" id="pinbtn">Войти</button></div>
+<div class="toast" id="toast"></div>
 <script>
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
@@ -181,7 +195,7 @@ const mdOf=d=>{const p=d.split('-');return(+p[1])+'-'+(+p[2])};
 async function boot(){
  try{const r=await fetch('letters.json?'+Date.now(),{cache:'no-store'});const j=await r.json();cfg=j.config||{};letters=j.letters||[]}
  catch(e){$('view').innerHTML='<div class="err">Не получилось загрузить письма 😢<br>Попробуй обновить страницу.</div>';return}
- ['timeline','coupons','checklist','gallery','quiz','playlist','holidays'].forEach(k=>cfg[k]=cfg[k]||[]);
+ ['timeline','coupons','checklist','gallery','quiz','playlist','holidays','questions','dates','quest','scratch','puzzle','places'].forEach(k=>cfg[k]=cfg[k]||[]);
  document.title=cfg.title||'Открой, когда…';$('ttl').textContent=(cfg.title||'Открой, когда…')+' 💌';$('sub').textContent=cfg.subtitle||'';
  if(cfg.startDate){const n=Math.floor((Date.now()-new Date(cfg.startDate+'T00:00:00'))/864e5);if(n>=0){$('days').style.display='inline-block';$('days').textContent='Мы вместе уже '+n+' '+plural(n)+' 💞'}}
  if(cfg.meetDate){const n=Math.ceil((new Date(cfg.meetDate+'T00:00:00')-new Date(new Date().toDateString()))/864e5);if(n>=0){$('meet').style.display='inline-block';$('meet').textContent=n===0?'Сегодня мы увидимся! 🥰':'До встречи: '+n+' '+plural(n)+' ⏳'}}
@@ -193,28 +207,49 @@ $('pinbtn').onclick=async()=>{if(await sha($('pin').value.trim())===cfg.pinHash)
 $('pin').onkeydown=e=>{if(e.key==='Enter')$('pinbtn').click()};
 
 let curView='letters';
-function nav(){const T=[['letters','💌 Письма'],['story','📖 История',cfg.timeline],['coupons','🎟 Купоны',cfg.coupons],['todo','✅ Мечты',cfg.checklist],['album','🖼 Альбом',cfg.gallery],['quiz','❓ Квиз',cfg.quiz],['music','🎵 Плейлист',cfg.playlist]].filter(t=>!t[2]||t[2].length);
+function nav(){const T=[['letters','💌 Письма'],['story','📖 История',cfg.timeline],['coupons','🎟 Купоны',cfg.coupons],['todo','✅ Мечты',cfg.checklist],['album','🖼 Альбом',cfg.gallery],['quiz','❓ Квиз',cfg.quiz],['music','🎵 Плейлист',cfg.playlist],['qa','💬 Вопрос дня',(cfg.dbUrl&&cfg.dbKey)?cfg.questions:[]],['wheel','🎡 Свидания',cfg.dates],['quest','🗝 Квест',cfg.quest],['scratch','🪄 Скретч',cfg.scratch],['puzzle','🧩 Пазл',cfg.puzzle],['map','🗺 Места',cfg.places],['year','✨ Наш год',cfg.startDate?[1]:[]]].filter(t=>!t[2]||t[2].length);
  $('nav').innerHTML='';$('nav').style.display=T.length>1?'flex':'none';
  T.forEach(t=>{const b=document.createElement('button');b.className='chip';b.dataset.k=t[0];b.textContent=t[1];b.onclick=()=>show(t[0]);$('nav').appendChild(b)})}
 function show(k){curView=k;document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c.dataset.k===k));$('today').style.display=k==='letters'?'':'none';const v=$('view');v.innerHTML='';V[k](v);bindLb(v)}
 function bindLb(r){r.querySelectorAll('img[data-lb]').forEach(im=>im.onclick=()=>{$('lbi').src=im.src;$('lbc').textContent=im.dataset.cap||'';$('lb').classList.add('on')})}
 const tgOn=()=>!!((cfg.tgToken&&cfg.tgChat)||cfg.tgWorker);
-function notify(k,l,d){if(!tgOn())return;if(cfg.tgMode==='important'&&!['react','reply','coupon','quiz'].includes(k))return;
- const n=l?`«${l.title}»`:'';const T={open:`👁 Открыла ${n}`,read:`✔ Дочитала ${n}`,react:`${d} Реакция на ${n}`,reply:`✍️ Ответила на ${n}:\n${d}`,coupon:`🎟 Использовала купон «${d}»`,todo:`✅ ${d}`,quiz:`❓ Квиз: ${d}`};const text='💌 '+(T[k]||k);
+function notify(k,l,d){if(!tgOn())return;if(cfg.tgMode==='important'&&['open','read','todo'].includes(k))return;
+ const n=l?`«${l.title}»`:'';const T={ping:d,mood:`🙂 Настроение: ${d}`,qa:`💬 Вопрос дня: ${d}`,roulette:`🎡 Выпало свидание: ${d}`,quest:`🗝 Квест: ${d}`,scratch:`🪄 Стёрла защитный слой: ${d}`,puzzle:`🧩 ${d}`,secret:`🤫 Нашла секрет на ${n}`,open:`👁 Открыла ${n}`,read:`✔ Дочитала ${n}`,react:`${d} Реакция на ${n}`,reply:`✍️ Ответила на ${n}:\n${d}`,coupon:`🎟 Использовала купон «${d}»`,todo:`✅ ${d}`,quiz:`❓ Квиз: ${d}`};const text='💌 '+(T[k]||k);
  try{if(cfg.tgWorker)fetch(cfg.tgWorker,{method:'POST',body:JSON.stringify({text}),keepalive:true}).catch(()=>{});else fetch(`https://api.telegram.org/bot${cfg.tgToken}/sendMessage`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:cfg.tgChat,text}),keepalive:true}).catch(()=>{})}catch(e){}}
 function track(k,l,d){notify(k,l,d);if(!cfg.dbUrl||!cfg.dbKey)return;try{fetch(`${cfg.dbUrl.replace(/\/$/,'')}/log/${cfg.dbKey}/events.json`,{method:'POST',body:JSON.stringify({t:Date.now(),k,l:l?l.id:'',n:l?l.title:'',d:String(d||'').slice(0,1500)}),keepalive:true}).catch(()=>{})}catch(e){}}
 const tracking=()=>!!((cfg.dbUrl&&cfg.dbKey)||tgOn());
 const FB=`<div class="fb" id="fb"><div class="rx"><button data-e="💗">💗</button><button data-e="😍">😍</button><button data-e="🥹">🥹</button><button data-e="😂">😂</button><button data-e="🫂">🫂</button></div><textarea id="rep" placeholder="Напиши мне ответ…"></textarea><button class="btn" id="repb" style="margin-top:6px">Отправить ответ</button><small id="reps"></small></div>`;
-function bindFb(l){const fb=$('fb');if(!fb)return;fb.querySelectorAll('.rx button').forEach(b=>b.onclick=()=>{track('react',l,b.dataset.e);b.classList.add('on');$('reps').textContent='Отправлено '+b.dataset.e});
- $('repb').onclick=()=>{const t=$('rep').value.trim();if(!t)return;track('reply',l,t);$('rep').value='';$('reps').textContent='Ответ отправлен 💌'}}
+function bindFb(l){const fb=$('fb');if(!fb)return;fb.querySelectorAll('.rx button').forEach(b=>b.onclick=()=>{track('react',l,b.dataset.e);stSet(s=>{s.rx=s.rx||{};s.rx[b.dataset.e]=(s.rx[b.dataset.e]||0)+1});b.classList.add('on');$('reps').textContent='Отправлено '+b.dataset.e});
+ $('repb').onclick=()=>{const t=$('rep').value.trim();if(!t)return;track('reply',l,t);stSet(s=>{s.replies=(s.replies||0)+1});$('rep').value='';$('reps').textContent='Ответ отправлен 💌'}}
 function ymEmbed(u){u=(u||'').trim();if(!u)return null;const q=u.match(/src=["']([^"']+)["']/);if(q)u=q[1];
  let m;if(/music\.yandex\.[a-z.]+\/iframe\//.test(u))return{src:u,h:/#track/.test(u)?100:450,open:''};
  if(m=u.match(/music\.yandex\.[a-z.]+\/album\/(\d+)\/track\/(\d+)/))return{src:`https://music.yandex.ru/iframe/#track/${m[2]}/${m[1]}`,h:100,open:u};
  if(m=u.match(/music\.yandex\.[a-z.]+\/users\/([^/?#]+)\/playlists\/(\d+)/))return{src:`https://music.yandex.ru/iframe/#playlist/${m[1]}/${m[2]}`,h:450,open:u};
  if(m=u.match(/music\.yandex\.[a-z.]+\/album\/(\d+)/))return{src:`https://music.yandex.ru/iframe/#album/${m[1]}`,h:450,open:u};
  return null}
+const MOODS=[['😢','грустно','sad'],['😐','нормально','random'],['🥰','счастлива','smile'],['😴','устала','sleep'],['🥺','скучаю','miss'],['😟','сомневаюсь','doubt']];
+const PINGS=[['💋','Скучаю','💋 Скучает по тебе'],['🫂','Обними меня','🫂 Просит обнять её'],['📞','Позвони','📞 Просит позвонить']];
+const dkey=()=>{const n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0')};
+const dayN=()=>{const n=new Date();return Math.floor(Date.UTC(n.getFullYear(),n.getMonth(),n.getDate())/864e5)};
+const qaBase=()=>`${cfg.dbUrl.replace(/\/$/,'')}/qa/${cfg.dbKey}/${dkey()}`;
+const stSet=f=>{const s=ls.get('ow_stats')||{};f(s);ls.set('ow_stats',s)};
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2600)}
+function extras(){if(!tracking())return '';return `<div class="mood">Как ты сегодня?<br>${MOODS.map(m=>`<button data-k="${m[0]}" title="${m[1]}">${m[0]}</button>`).join('')}</div><div class="sug" id="sug"></div><div class="row3">${PINGS.map((p,i)=>`<button class="btn ghost" data-pi="${i}">${p[0]} ${p[1]}</button>`).join('')}</div>`}
+function bindExtras(v){v.querySelectorAll('.mood button').forEach(b=>b.onclick=()=>{const m=MOODS.find(x=>x[0]===b.dataset.k);v.querySelectorAll('.mood button').forEach(x=>x.classList.toggle('on',x===b));track('mood',null,m[0]+' '+m[1]);toast('Спасибо, что поделилась 💗');
+  const l=letters.find(z=>z.id===m[2]&&!isLocked(z));$('sug').innerHTML=l?`Кажется, тебе подойдёт письмо «${esc(l.title)}» <button class="btn" id="sugb">Открыть</button>`:'';l&&($('sugb').onclick=()=>open(l))});
+ v.querySelectorAll('button[data-pi]').forEach(b=>b.onclick=()=>{const p=PINGS[+b.dataset.pi],k='ow_p_'+b.dataset.pi,last=ls.get(k)||0;if(Date.now()-last<3e5){toast('Уже отправлено, подожди немного 💞');return}ls.set(k,Date.now());track('ping',null,p[2]);hearts(12);toast('Отправлено 💌')})}
+function secretShow(l){$('hE').textContent='🤫';$('hT').textContent='Секрет';$('hX').textContent=l.secretMsg;$('hol').classList.add('on');hearts(30);track('secret',l,'нашла секрет');$('hB').onclick=()=>$('hol').classList.remove('on')}
+function scratchInit(c,done){const r=c.parentElement.getBoundingClientRect();c.width=r.width;c.height=r.height;const x=c.getContext('2d'),g=x.createLinearGradient(0,0,c.width,c.height);g.addColorStop(0,'#c9c3d6');g.addColorStop(.5,'#eee9f7');g.addColorStop(1,'#b8b0cc');x.fillStyle=g;x.fillRect(0,0,c.width,c.height);x.fillStyle='#7a6b8f';x.font='26px "Marck Script",cursive';x.textAlign='center';x.fillText('Сотри пальцем 💗',c.width/2,c.height/2+8);
+ x.globalCompositeOperation='destination-out';let down=false,n=0,fin=false;
+ const draw=e=>{if(!down||fin)return;e.preventDefault();const b=c.getBoundingClientRect();x.beginPath();x.arc(e.clientX-b.left,e.clientY-b.top,22,0,7);x.fill();if(++n%8===0){const d=x.getImageData(0,0,c.width,c.height).data;let t=0,all=0;for(let i=3;i<d.length;i+=64){all++;if(d[i]===0)t++}if(t/all>.5){fin=true;c.style.transition='opacity .8s';c.style.opacity=0;setTimeout(()=>c.remove(),900);done()}}};
+ c.onpointerdown=e=>{down=true;draw(e)};c.onpointermove=draw;c.onpointerup=c.onpointerleave=()=>down=false}
+function slide(el,img,msg){const N=3;let t=[...Array(9).keys()],e=8;const nb=i=>{const r=Math.floor(i/N),c=i%N,o=[];if(r>0)o.push(i-N);if(r<N-1)o.push(i+N);if(c>0)o.push(i-1);if(c<N-1)o.push(i+1);return o};
+ for(let k=0;k<120;k++){const o=nb(e),j=o[Math.floor(Math.random()*o.length)];[t[e],t[j]]=[t[j],t[e]];e=j}
+ const solved=()=>t.every((v,i)=>v===i);
+ const draw=()=>{el.innerHTML='';t.forEach((v,i)=>{const d=document.createElement('div');if(v===8&&!solved())d.className='e';else{d.style.backgroundImage=`url(${img})`;d.style.backgroundPosition=`${(v%N)*50}% ${Math.floor(v/N)*50}%`}
+  d.onclick=()=>{if(solved())return;const j=t.indexOf(8);if(nb(i).includes(j)){[t[i],t[j]]=[t[j],t[i]];draw();if(solved()){hearts(40);track('puzzle',null,'собрала пазл');el.insertAdjacentHTML('afterend',`<p style="text-align:center;font-size:24px;white-space:pre-wrap">${esc(msg||'Ты молодец! 💗')}</p>`)}}};el.appendChild(d)})};draw()}
 const V={
- letters(v){v.innerHTML=(tracking()?'<p class="note">Здесь можно отвечать на письма, и я увижу ответ 💗 Я также вижу, какие письма ты открыла.</p>':'')+'<div class="grid" id="grid"></div>';renderLetters()},
+ letters(v){v.innerHTML=(tracking()?'<p class="note">Здесь можно отвечать на письма, и я увижу ответ 💗 Я также вижу, какие письма ты открыла.</p>':'')+extras()+'<div class="grid" id="grid"></div>';renderLetters();bindExtras(v)},
  story(v){v.innerHTML='<div class="tl">'+cfg.timeline.slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')).map(x=>`<div class="tli"><i></i><div class="tlc"><small>${fmtD(x.date)}</small><b>${esc(x.title||'')}</b><p>${esc(x.text||'')}</p>${x.photo?`<figure class="pol" style="--r:-2deg"><img src="${esc(x.photo)}" loading="lazy" data-lb alt=""></figure>`:''}</div></div>`).join('')+'</div>'},
  coupons(v){const used=ls.get('ow_used')||[];v.innerHTML=cfg.coupons.map((x,i)=>{const id=x.id||'c'+i;return `<div class="cp ${used.includes(id)?'used':''}"><div class="e">${esc(x.emoji||'🎟')}</div><div style="flex:1"><b>${esc(x.title)}</b><p>${esc(x.text||'')}</p></div>${used.includes(id)?'':`<button class="btn" data-id="${esc(id)}">Использовать</button>`}</div>`}).join('');
   v.querySelectorAll('button[data-id]').forEach(b=>b.onclick=()=>{if(confirm('Использовать этот купон? Потом его не вернуть 😉')){const u=ls.get('ow_used')||[];u.push(b.dataset.id);ls.set('ow_used',u);track('coupon',null,b.closest('.cp').querySelector('b').textContent);hearts(20);show('coupons')}})},
@@ -223,9 +258,34 @@ const V={
   v.querySelectorAll('.todo').forEach(t=>t.onclick=()=>{if(t.dataset.a==='1')return;const l=ls.get('ow_todo')||[],k=t.dataset.id,p=l.indexOf(k);p<0?l.push(k):l.splice(p,1);ls.set('ow_todo',l);track('todo',null,t.querySelector('span').textContent+(p<0?' ✓':' ✗'));show('todo')})},
  album(v){v.innerHTML='<div class="alb">'+cfg.gallery.map(x=>`<figure><img src="${esc(x.photo)}" data-lb data-cap="${esc(x.caption||'')}" loading="lazy" alt="">${x.caption?`<figcaption>${esc(x.caption)}</figcaption>`:''}</figure>`).join('')+'</div>'},
  quiz(v){const Q=cfg.quiz;let i=0,sc=0;const step=()=>{
-   if(i>=Q.length){if(!Q.done){Q.done=1;track('quiz',null,sc+'/'+Q.length)}v.innerHTML=`<div class="qz"><div style="font-size:54px">🏆</div><h2>Правильно: ${sc} из ${Q.length}</h2><p style="font-size:23px">${esc(cfg.quizEnd||'Ты у меня самая лучшая 💗')}</p><button class="btn" id="qr">Ещё раз</button></div>`;$('qr').onclick=()=>{i=0;sc=0;step()};if(sc===Q.length)hearts(40);return}
+   if(i>=Q.length){if(!Q.done){Q.done=1;track('quiz',null,sc+'/'+Q.length);stSet(s=>{s.quiz=sc+'/'+Q.length})}v.innerHTML=`<div class="qz"><div style="font-size:54px">🏆</div><h2>Правильно: ${sc} из ${Q.length}</h2><p style="font-size:23px">${esc(cfg.quizEnd||'Ты у меня самая лучшая 💗')}</p><button class="btn" id="qr">Ещё раз</button></div>`;$('qr').onclick=()=>{i=0;sc=0;step()};if(sc===Q.length)hearts(40);return}
    const q=Q[i];v.innerHTML=`<div class="qz"><small>Вопрос ${i+1} из ${Q.length}</small><h2>${esc(q.q)}</h2>${(q.options||[]).map((o,k)=>`<button class="opt" data-k="${k}">${esc(o)}</button>`).join('')}</div>`;
    v.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{const k=+b.dataset.k,c=(+q.answer||1)-1;v.querySelectorAll('.opt').forEach(x=>{x.disabled=true;if(+x.dataset.k===c)x.classList.add('ok')});if(k===c)sc++;else b.classList.add('no');setTimeout(()=>{i++;step()},1100)})};step()},
+ qa(v){const Q=cfg.questions,q=Q[dayN()%Q.length].q;v.innerHTML=`<div class="qz qa"><small>Вопрос дня</small><h2>${esc(q)}</h2><div id="qab">Загружаю…</div></div>`;
+  (async()=>{let d={};try{d=await(await fetch(qaBase()+'.json?'+Date.now())).json()||{}}catch(e){}
+   const box=$('qab');if(!box)return;
+   if(!d.her){box.innerHTML=(d.him?'<p>Он уже ответил! Ответь и ты, чтобы увидеть его ответ 💗</p>':'')+'<textarea id="qat" placeholder="Твой ответ…"></textarea><br><button class="btn" id="qas" style="margin-top:8px">Отправить</button>';
+    $('qas').onclick=async()=>{const t=$('qat').value.trim();if(!t)return;try{await fetch(qaBase()+'/her.json',{method:'PUT',body:JSON.stringify({t:Date.now(),text:t})});track('qa',null,q+' → '+t);V.qa(v)}catch(e){toast('Не отправилось, попробуй ещё раз')}}}
+   else if(!d.him)box.innerHTML='<p>Ты ответила ✓<br>Его ответ откроется, когда он ответит 💞</p>';
+   else box.innerHTML=`<div class="qab"><small>Ты</small><br>${esc(d.her.text)}</div><div class="qab"><small>Он</small><br>${esc(d.him.text)}</div>`})()},
+ wheel(v){const I=cfg.dates.map(x=>x.text),n=I.length;v.innerHTML='<div class="whl"><div class="pt">▼</div><canvas id="wc" width="640" height="640"></canvas></div><div style="text-align:center"><button class="btn" id="spin">Крутить 🎡</button><p id="wres" style="font-size:28px;min-height:40px"></p></div>';
+  const c=$('wc'),x=c.getContext('2d'),seg=2*Math.PI/n,cols=['#fbd3de','#e4d9fa','#ffe7c9','#d3eee3','#cfd9f5','#fcd5e8'];
+  for(let k=0;k<n;k++){x.beginPath();x.moveTo(320,320);x.arc(320,320,316,-Math.PI/2+k*seg,-Math.PI/2+(k+1)*seg);x.closePath();x.fillStyle=cols[k%cols.length];x.fill();x.strokeStyle='#fff';x.lineWidth=3;x.stroke();
+   x.save();x.translate(320,320);x.rotate(-Math.PI/2+(k+.5)*seg);x.fillStyle='#5b3347';x.font='30px "Marck Script",cursive';x.textAlign='right';x.fillText(I[k].slice(0,20),296,10);x.restore()}
+  let rot=0,busy=false;$('spin').onclick=()=>{if(busy)return;busy=true;$('wres').textContent='';const i=Math.floor(Math.random()*n),sd=360/n,target=((-(i+.5)*sd)%360+360)%360,cur=((rot%360)+360)%360;rot+=360*6+((target-cur)+360)%360;c.style.transform=`rotate(${rot}deg)`;
+   setTimeout(()=>{busy=false;$('wres').textContent='🎉 '+I[i];track('roulette',null,I[i]);hearts(25)},4700)}},
+ quest(v){const Q=cfg.quest,p=ls.get('ow_quest')||0,norm=s=>String(s).toLowerCase().replace(/ё/g,'е').replace(/[^a-zа-я0-9]/g,'');
+  v.innerHTML=Q.map((x,i)=>i<p?`<div class="qst"><small>Шаг ${i+1} ✓</small><p>${esc(x.riddle)}</p><p style="font-size:24px">${esc(x.hint||'')}</p></div>`:i===p?`<div class="qst"><small>Шаг ${i+1} из ${Q.length}</small><p>${esc(x.riddle)}</p><input id="qin" placeholder="Твой ответ"><button class="btn" id="qgo">Проверить</button><div id="qm" style="min-height:26px"></div></div>`:`<div class="qst lock">🔒 Шаг ${i+1}</div>`).join('')+(p>=Q.length?'<div style="text-align:center;font-size:30px">🎁 Квест пройден!</div>':'');
+  const b=$('qgo');b&&(b.onclick=()=>{const a=norm($('qin').value);if(a&&String(Q[p].answer).split('|').some(z=>norm(z)===a)){ls.set('ow_quest',p+1);track('quest',null,`шаг ${p+1} из ${Q.length} пройден`);hearts(30);show('quest')}else $('qm').textContent='Хм, не угадала. Подумай ещё 💭'})},
+ scratch(v){v.innerHTML=cfg.scratch.map((x,i)=>`<div class="sc"><b>${esc(x.title||'')}</b><p>${esc(x.text||'')}</p><canvas data-i="${i}"></canvas></div>`).join('');
+  v.querySelectorAll('canvas').forEach(c=>{const x=cfg.scratch[+c.dataset.i];scratchInit(c,()=>{hearts(20);track('scratch',null,x.title||'карта')})})},
+ puzzle(v){v.innerHTML=cfg.puzzle.map((x,i)=>`<div><div class="pz" id="pz${i}"></div></div>`).join('');cfg.puzzle.forEach((x,i)=>{if(x.photo)slide($('pz'+i),x.photo,x.text)})},
+ map(v){v.innerHTML='<div id="map"></div>';const go=()=>{const m=L.map('map').setView([30,10],2);L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(m);const pts=[];
+   cfg.places.forEach(p=>{const c=String(p.coords||'').split(/[,;\s]+/).filter(Boolean).map(Number);if(c.length<2||c.some(isNaN))return;const ll=c.slice(0,2);pts.push(ll);L.marker(ll,{icon:L.divIcon({html:'<div style="font-size:30px;line-height:30px">📍</div>',className:'',iconSize:[30,30],iconAnchor:[15,30]})}).addTo(m).bindPopup(`<b>${esc(p.title||'')}</b><br>${esc(p.text||'')}${p.photo?`<br><img src="${esc(p.photo)}" style="width:180px;border-radius:8px;margin-top:6px">`:''}`)});pts.length&&m.fitBounds(pts,{maxZoom:14,padding:[30,30]})};
+  if(window.L)go();else{const css=document.createElement('link');css.rel='stylesheet';css.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';document.head.appendChild(css);const s=document.createElement('script');s.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';s.onload=go;document.head.appendChild(s)}},
+ year(v){const s=ls.get('ow_stats')||{},rx=s.rx||{},top=Object.keys(rx).sort((a,b)=>rx[b]-rx[a])[0],days=Math.floor((Date.now()-new Date(cfg.startDate+'T00:00:00'))/864e5),todo=(ls.get('ow_todo')||[]).length+cfg.checklist.filter(x=>x.done).length;
+  const C=[[days,'дней вместе'],[(ls.get('ow_read')||[]).length+' из '+letters.length,'писем открыто'],[top||'—','любимая реакция'],[s.replies||0,'ответов отправлено'],[(ls.get('ow_used')||[]).length,'купонов использовано'],[todo,'мечт сбылось'],[s.quiz||'—','результат квиза'],[ls.get('ow_quest')||0,'шагов квеста пройдено']];
+  v.innerHTML='<div style="text-align:center;font-size:32px;margin-top:10px">Наш год ✨</div><div class="yr">'+C.map(c=>`<div><b>${esc(c[0])}</b>${c[1]}</div>`).join('')+'</div>'},
  music(v){v.innerHTML=cfg.playlist.map((x,i)=>{const e=ymEmbed(x.url);return `<div class="song"><span style="font-size:28px">🎵</span><div><b>${esc(x.title)}</b><small>${esc(x.artist||'')}</small></div>${e?`<button class="btn" data-i="${i}">▶ Слушать</button>`:(x.url?`<a class="btn" href="${esc(x.url)}" target="_blank" rel="noopener">Слушать</a>`:'')}</div><div class="plr" id="plr${i}"></div>`}).join('');
   v.querySelectorAll('button[data-i]').forEach(b=>b.onclick=()=>{const i=+b.dataset.i,box=$('plr'+i),e=ymEmbed(cfg.playlist[i].url);if(box.innerHTML){box.innerHTML='';b.textContent='▶ Слушать';return}
    box.innerHTML=`<iframe src="${esc(e.src)}" frameborder="0" allow="autoplay; encrypted-media" style="border:none;width:100%;height:${e.h}px;border-radius:12px" loading="lazy"></iframe>${e.open?`<a class="ya" href="${esc(e.open)}" target="_blank" rel="noopener">Открыть в Яндекс Музыке ↗</a>`:''}`;b.textContent='✕ Закрыть'})}
@@ -241,7 +301,9 @@ function renderLetters(){const g=$('grid');if(!g)return;g.innerHTML='';const rea
   d.className='env'+(sec?' secret':'');d.style.cssText=`--c:${l.c||'#fbd3de'};--c2:${l.c2||'#f4b6c8'}`;
   const left=lk?Math.ceil((unlockAt(l)-new Date())/864e5):0;
   d.innerHTML=envInner(l)+(lk?`<div class="lock"><b>🔒</b>откроется ${ruDate(unlockAt(l))}<br>через ${left} ${plural(left)}</div>`:'')+((!lk&&!read.includes(l.id))?'<div class="badge">новое</div>':'');
-  d.onclick=()=>{if(lk){d.classList.remove('shake');void d.offsetWidth;d.classList.add('shake');return}open(l)};g.appendChild(d)})}
+  d.onclick=()=>{if(lk){d.classList.remove('shake');void d.offsetWidth;d.classList.add('shake');return}open(l)};
+  if(l.secretMsg&&!lk){const sl=d.querySelector('.seal');let taps=0,tm;sl.onclick=e=>{e.stopPropagation();taps++;clearTimeout(tm);if(taps>=5){taps=0;secretShow(l);return}tm=setTimeout(()=>{taps=0;d.click()},700)}}
+  g.appendChild(d)})}
 function envInner(l){return `<div class="eb"></div><div class="ef"></div><div class="stamp">♡</div><div class="seal">${esc(l.emoji)}</div><div class="lbl">${esc(l.title)}</div>`}
 
 $('today').onclick=()=>{const ok=letters.filter(l=>l.type!=='secret'&&!isLocked(l));if(!ok.length)return;const d=new Date();const k=d.getFullYear()*372+d.getMonth()*31+d.getDate();open(ok[k%ok.length])};
@@ -268,6 +330,7 @@ function hearts(n){for(let i=0;i<n;i++){const s=document.createElement('span');s
  s.style.cssText=`left:${Math.random()*100}vw;font-size:${16+Math.random()*26}px;animation-duration:${3+Math.random()*3}s;animation-delay:${Math.random()*2.5}s`;
  document.body.appendChild(s);setTimeout(()=>s.remove(),7000)}}
 $('lb').onclick=()=>$('lb').classList.remove('on');
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 boot();
 </script>
 </body>
