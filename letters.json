@@ -58,7 +58,13 @@
     "dates": [],
     "quest": [],
     "scratch": [],
-    "puzzle": [],
+    "puzzle": [
+      {
+        "id": "i1795224049889",
+        "photo": "photos/1795224047478-1.jpg",
+        "text": ""
+      }
+    ],
     "places": [],
     "tgHer": "1846658892"
   },
