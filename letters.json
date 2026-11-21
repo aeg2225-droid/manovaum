@@ -53,7 +53,13 @@
         "done": false
       }
     ],
-    "gallery": [],
+    "gallery": [
+      {
+        "id": "i1795227056259",
+        "photo": "photos/1795227049277-1.jpg",
+        "caption": "баю бай"
+      }
+    ],
     "quiz": [],
     "playlist": [
       {
