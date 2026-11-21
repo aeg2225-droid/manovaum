@@ -134,6 +134,7 @@ header p{margin:6px 0 0;opacity:.75;font-size:22px}
 .row3{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:12px 0}
 .mood{text-align:center;margin:12px 0;font-size:21px}.mood button{font-size:28px;background:var(--card);border:0;border-radius:50%;width:50px;height:50px;margin:3px;cursor:pointer}.mood button.on{outline:3px solid var(--acc)}
 .sug{text-align:center;margin:6px 0;font-size:20px}
+.snack{position:fixed;left:12px;right:12px;bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:61;background:#2c1426f0;color:#fff;border-radius:16px;padding:10px 16px;display:none;align-items:center;justify-content:space-between;gap:10px;font-size:20px;max-width:560px;margin:0 auto}.snack.on{display:flex}.snack button{border:0;background:none;color:#ffb0c6;font:inherit;cursor:pointer;padding:4px 8px}
 .toast{position:fixed;left:50%;bottom:calc(30px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#2c1426e6;color:#fff;padding:10px 20px;border-radius:999px;z-index:60;font-size:20px;opacity:0;transition:opacity .4s;pointer-events:none;white-space:nowrap}.toast.on{opacity:1}
 .qa textarea,.qst input{width:100%;font:inherit;font-size:21px;border:2px dashed var(--acc);border-radius:12px;padding:8px 10px;background:var(--card);color:var(--ink);min-height:46px}
 .qa textarea{min-height:100px}
@@ -285,6 +286,7 @@ html[data-theme="rose"] .chip{border:1px solid #ffffff22}
 <div class="hol" id="hol"><div style="font-size:70px" id="hE">🎉</div><h2 id="hT"></h2><p id="hX"></p><button class="btn" id="hB">Спасибо 💗</button></div>
 <div class="gate" id="gate"><div style="font-size:54px">🔒</div><div style="font-size:26px">Введи наш код</div><input id="pin" type="password" inputmode="numeric" autocomplete="off"><small id="pinerr"></small><button class="btn" id="pinbtn">Войти</button></div>
 <div class="toast" id="toast"></div>
+<div class="snack" id="snack"><span id="sn"></span><button id="snu">Отменить</button></div>
 <script>
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
@@ -350,7 +352,10 @@ const PINGS=[['💋','Скучаю','💋 Скучает по тебе'],['🫂'
 const dkey=()=>{const n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0')};
 const dayN=()=>{const n=new Date();return Math.floor(Date.UTC(n.getFullYear(),n.getMonth(),n.getDate())/864e5)};
 const qaBase=()=>`${cfg.dbUrl.replace(/\/$/,'')}/qa/${cfg.dbKey}/${dkey()}`;
+const qid=x=>x.id||('h'+[...String(x.q)].reduce((h,c)=>(h*31+c.charCodeAt(0))|0,7).toString(36));
 const stSet=f=>{const s=ls.get('ow_stats')||{};f(s);ls.set('ow_stats',s)};
+let snT;function undoSnack(t,undo,commit){clearTimeout(snT);if(undoSnack.c)undoSnack.c();undoSnack.c=commit;$('sn').textContent=t;$('snack').classList.add('on');$('snu').onclick=()=>{clearTimeout(snT);undoSnack.c=null;$('snack').classList.remove('on');undo()};snT=setTimeout(()=>{$('snack').classList.remove('on');const c=undoSnack.c;undoSnack.c=null;c&&c()},5000)}
+addEventListener('pagehide',()=>{const c=undoSnack.c;undoSnack.c=null;c&&c()});
 function toast(t){const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2600)}
 function extras(){if(!tracking())return '';return `<div class="mood">Как ты сегодня?<br>${MOODS.map(m=>`<button data-k="${m[0]}" title="${m[1]}">${m[0]}</button>`).join('')}</div><div class="sug" id="sug"></div><div class="row3">${PINGS.map((p,i)=>`<button class="btn ghost" data-pi="${i}">${p[0]} ${p[1]}</button>`).join('')}</div>`}
 function bindExtras(v){v.querySelectorAll('.mood button').forEach(b=>b.onclick=()=>{const m=MOODS.find(x=>x[0]===b.dataset.k);v.querySelectorAll('.mood button').forEach(x=>x.classList.toggle('on',x===b));track('mood',null,m[0]+' '+m[1]);toast('Спасибо, что поделилась 💗');
@@ -369,8 +374,10 @@ function slide(el,img,msg){const N=3;let t=[...Array(9).keys()],e=8;const nb=i=>
 const V={
  letters(v){v.innerHTML=(tracking()?'<p class="note">Здесь можно отвечать на письма, и я увижу ответ 💗 Я также вижу, какие письма ты открыла.</p>':'')+extras()+'<div class="grid" id="grid"></div>';renderLetters();bindExtras(v)},
  story(v){v.innerHTML='<div class="tl">'+cfg.timeline.slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')).map(x=>`<div class="tli"><i></i><div class="tlc"><small>${fmtD(x.date)}</small><b>${esc(x.title||'')}</b><p>${esc(x.text||'')}</p>${x.photo?`<figure class="pol" style="--r:-2deg"><img src="${esc(x.photo)}" loading="lazy" data-lb alt=""></figure>`:''}</div></div>`).join('')+'</div>'},
- coupons(v){const used=ls.get('ow_used')||[];v.innerHTML=cfg.coupons.map((x,i)=>{const id=x.id||'c'+i;return `<div class="cp ${used.includes(id)?'used':''}"><div class="e">${esc(x.emoji||'🎟')}</div><div style="flex:1"><b>${esc(x.title)}</b><p>${esc(x.text||'')}</p></div>${used.includes(id)?'':`<button class="btn" data-id="${esc(id)}">Использовать</button>`}</div>`}).join('');
-  v.querySelectorAll('button[data-id]').forEach(b=>b.onclick=()=>{if(confirm('Использовать этот купон? Потом его не вернуть 😉')){const u=ls.get('ow_used')||[];u.push(b.dataset.id);ls.set('ow_used',u);track('coupon',null,b.closest('.cp').querySelector('b').textContent);hearts(20);show('coupons')}})},
+ coupons(v){const used=ls.get('ow_used')||[],L=cfg.coupons.map((x,i)=>({x,id:x.id||'c'+i})).filter(o=>!used.includes(o.id));
+  v.innerHTML=L.length?L.map(o=>`<div class="cp" data-id="${esc(o.id)}"><div class="e">${esc(o.x.emoji||'🎟')}</div><div style="flex:1"><b>${esc(o.x.title)}</b><p>${esc(o.x.text||'')}</p></div><button class="btn">Использовать</button></div>`).join(''):'<div style="text-align:center;font-size:26px;margin-top:30px">Все купоны использованы 💗<br>Скоро будут новые</div>';
+  v.querySelectorAll('.cp').forEach(c=>c.querySelector('button').onclick=()=>{const id=c.dataset.id,t=c.querySelector('b').textContent,u=ls.get('ow_used')||[];u.push(id);ls.set('ow_used',u);hearts(20);c.style.transition='all .5s';c.style.opacity=0;c.style.transform='translateX(60px)';
+   undoSnack('Купон «'+t+'» использован',()=>{ls.set('ow_used',(ls.get('ow_used')||[]).filter(z=>z!==id));if(curView==='coupons')show('coupons')},()=>track('coupon',null,t));setTimeout(()=>{if(curView==='coupons'&&c.isConnected)show('coupons')},520)})},
  todo(v){const loc=ls.get('ow_todo')||[];const dn=cfg.checklist.filter((x,i)=>x.done||loc.includes(x.id||'t'+i)).length;
   v.innerHTML=`<div style="text-align:center;font-size:22px;margin-top:10px">Сделано ${dn} из ${cfg.checklist.length}</div><div class="prog"><i style="width:${Math.round(dn/cfg.checklist.length*100)}%"></i></div>`+cfg.checklist.map((x,i)=>{const id=x.id||'t'+i;const d=x.done||loc.includes(id);return `<div class="todo ${d?'done':''}" data-id="${esc(id)}" data-a="${x.done?1:0}"><u>${d?'✓':''}</u><span>${esc(x.text)}</span></div>`}).join('');
   v.querySelectorAll('.todo').forEach(t=>t.onclick=()=>{if(t.dataset.a==='1')return;const l=ls.get('ow_todo')||[],k=t.dataset.id,p=l.indexOf(k);p<0?l.push(k):l.splice(p,1);ls.set('ow_todo',l);track('todo',null,t.querySelector('span').textContent+(p<0?' ✓':' ✗'));show('todo')})},
@@ -379,13 +386,18 @@ const V={
    if(i>=Q.length){if(!Q.done){Q.done=1;track('quiz',null,sc+'/'+Q.length);stSet(s=>{s.quiz=sc+'/'+Q.length})}v.innerHTML=`<div class="qz"><div style="font-size:54px">🏆</div><h2>Правильно: ${sc} из ${Q.length}</h2><p style="font-size:23px">${esc(cfg.quizEnd||'Ты у меня самая лучшая 💗')}</p><button class="btn" id="qr">Ещё раз</button></div>`;$('qr').onclick=()=>{i=0;sc=0;step()};if(sc===Q.length)hearts(40);return}
    const q=Q[i];v.innerHTML=`<div class="qz"><small>Вопрос ${i+1} из ${Q.length}</small><h2>${esc(q.q)}</h2>${(q.options||[]).map((o,k)=>`<button class="opt" data-k="${k}">${esc(o)}</button>`).join('')}</div>`;
    v.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{const k=+b.dataset.k,c=(+q.answer||1)-1;v.querySelectorAll('.opt').forEach(x=>{x.disabled=true;if(+x.dataset.k===c)x.classList.add('ok')});if(k===c)sc++;else b.classList.add('no');setTimeout(()=>{i++;step()},1100)})};step()},
- qa(v){const Q=cfg.questions,q=Q[dayN()%Q.length].q;v.innerHTML=`<div class="qz qa"><small>Вопрос дня</small><h2>${esc(q)}</h2><div id="qab">Загружаю…</div></div>`;
-  (async()=>{let d={};try{d=await(await fetch(qaBase()+'.json?'+Date.now())).json()||{}}catch(e){}
-   const box=$('qab');if(!box)return;
-   if(!d.her){box.innerHTML=(d.him?'<p>Он уже ответил! Ответь и ты, чтобы увидеть его ответ 💗</p>':'')+'<textarea id="qat" placeholder="Твой ответ…"></textarea><br><button class="btn" id="qas" style="margin-top:8px">Отправить</button>';
-    $('qas').onclick=async()=>{const t=$('qat').value.trim();if(!t)return;try{await fetch(qaBase()+'/her.json',{method:'PUT',body:JSON.stringify({t:Date.now(),text:t})});track('qa',null,q+' → '+t);V.qa(v)}catch(e){toast('Не отправилось, попробуй ещё раз')}}}
-   else if(!d.him)box.innerHTML='<p>Ты ответила ✓<br>Его ответ откроется, когда он ответит 💞</p>';
-   else box.innerHTML=`<div class="qab"><small>Ты</small><br>${esc(d.her.text)}</div><div class="qab"><small>Он</small><br>${esc(d.him.text)}</div>`})()},
+ async qa(v){const Q=cfg.questions,base=`${cfg.dbUrl.replace(/\/$/,'')}/qa/${cfg.dbKey}/q`;
+  v.innerHTML='<div class="qz qa"><div id="qab">Загружаю…</div></div>';
+  let D;try{const r=await fetch(base+'.json?'+Date.now());D=await r.json();if(!r.ok||(D&&D.error))throw new Error(r.status)}catch(e){const x=$('qab');x&&(x.innerHTML='<p>Не получается связаться с базой 😢<br><small>Скажи ему проверить правила Firebase</small></p>');return}
+  D=D||{};const box=$('qab');if(!box)return;
+  const cur=Q.find(x=>!(D[qid(x)]&&D[qid(x)].her)),done=Q.filter(x=>D[qid(x)]&&D[qid(x)].her).reverse();let h='';
+  if(cur)h+=`<small>Вопрос</small><h2>${esc(cur.q)}</h2><textarea id="qat" placeholder="Твой ответ…"></textarea><br><button class="btn" id="qas" style="margin-top:8px">Отправить</button><div id="qerr" style="min-height:26px"></div>`;
+  else h+='<p style="font-size:24px">Ты ответила на все вопросы 💗<br>Скоро появятся новые</p>';
+  if(done.length)h+='<h3 style="font-weight:400;font-size:26px;margin:22px 0 4px">Ваши ответы</h3>'+done.map(x=>{const a=D[qid(x)];return `<div class="qab"><small>${esc(x.q)}</small><br>Ты: ${esc(a.her.text)}<br>${a.him?'Он: '+esc(a.him.text):'<small>Он ещё не ответил 💞</small>'}</div>`}).join('');
+  box.innerHTML=h;
+  const s=$('qas');s&&(s.onclick=async()=>{const t=$('qat').value.trim();if(!t)return;s.disabled=true;
+   try{const r=await fetch(`${base}/${qid(cur)}/her.json`,{method:'PUT',body:JSON.stringify({t:Date.now(),text:t})});if(!r.ok)throw new Error(r.status);track('qa',null,cur.q+' → '+t);hearts(15);V.qa(v)}
+   catch(e){s.disabled=false;$('qerr').textContent='Не отправилось 😢 Попробуй ещё раз или скажи ему про правила Firebase'}})},
  wheel(v){const I=cfg.dates.map(x=>x.text),n=I.length;v.innerHTML='<div class="whl"><div class="pt">▼</div><canvas id="wc" width="640" height="640"></canvas></div><div style="text-align:center"><button class="btn" id="spin">Крутить 🎡</button><p id="wres" style="font-size:28px;min-height:40px"></p></div>';
   const c=$('wc'),x=c.getContext('2d'),seg=2*Math.PI/n,cols=['#fbd3de','#e4d9fa','#ffe7c9','#d3eee3','#cfd9f5','#fcd5e8'];
   for(let k=0;k<n;k++){x.beginPath();x.moveTo(320,320);x.arc(320,320,316,-Math.PI/2+k*seg,-Math.PI/2+(k+1)*seg);x.closePath();x.fillStyle=cols[k%cols.length];x.fill();x.strokeStyle='#fff';x.lineWidth=3;x.stroke();

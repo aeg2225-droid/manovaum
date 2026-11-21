@@ -38,6 +38,7 @@ textarea{min-height:150px}
 #sheet{z-index:25}#lsheet{z-index:26}#esheet{z-index:27}#act{z-index:28}
 #msg{font-size:14px;text-align:center;min-height:20px}
 .dirty{color:#d63a6a}
+.undo{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:40;background:#2c1426;color:#fff;border-radius:14px;padding:10px 14px;display:none;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 6px 20px #0006}.undo.on{display:flex}.undo button{border:0;background:none;color:#ffb0c6;font:inherit;font-weight:700;cursor:pointer;padding:4px 8px}
 .ph{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0}
 .ph div{position:relative;width:84px;height:84px;border-radius:10px;background-size:cover;background-position:center;background-color:var(--line)}
 .ph b{position:absolute;top:-7px;right:-7px;background:#d63a6a;color:#fff;border-radius:50%;width:24px;height:24px;text-align:center;line-height:24px;font-weight:400;cursor:pointer}
@@ -84,6 +85,7 @@ textarea{min-height:150px}
   <div class="box"><b>Разделы сайта</b><div class="secs" id="secs" style="margin-top:10px"></div><div class="hint">Раздел появляется на сайте, когда в нём есть хотя бы одна запись.</div></div>
  </div>
 </div>
+<div class="undo" id="undo"><span id="undoT"></span><button id="undoB">Отменить</button></div>
 <div class="bar" id="bar" style="display:none"><span id="msg"></span><label style="font-size:13px;opacity:1;margin:0;display:flex;gap:4px;align-items:center;white-space:nowrap"><input type="checkbox" id="nt" checked style="width:20px;height:20px">ей в Telegram</label><button class="btn" id="pub">Опубликовать на сайте</button></div>
 
 <div class="sheet" id="sheet"><div class="wrap">
@@ -184,14 +186,21 @@ $('findHer').onclick=async()=>{const t=$('cTgT').value.trim(),R=$('herRes');if(!
 const dkey=()=>{const n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0')};
 const dayN=()=>{const n=new Date();return Math.floor(Date.UTC(n.getFullYear(),n.getMonth(),n.getDate())/864e5)};
 const qBase=()=>{const u=$('cDb').value.trim(),k=$('cKey').value.trim();return u&&k?`${u.replace(/\/$/,'')}/qa/${k}/${dkey()}`:''};
-async function drawQa(){const B=$('qBody'),b=qBase(),Q=data.config.questions||[];
- if(!b){B.textContent='Сначала подключи базу Firebase (поля «Адрес базы» и «Секретный ключ» в настройках) и обнови правила.';return}
+const qid=x=>x.id||('h'+[...String(x.q)].reduce((h,c)=>(h*31+c.charCodeAt(0))|0,7).toString(36));
+async function drawQa(){const B=$('qBody'),u=$('cDb').value.trim(),k=$('cKey').value.trim(),Q=data.config.questions||[];
+ if(!u||!k){B.textContent='Сначала подключи базу Firebase (поля «Адрес базы» и «Секретный ключ» в настройках) и обнови правила.';return}
  if(!Q.length){B.textContent='Добавь вопросы: «Разделы сайта» → 💬 Вопросы дня.';return}
- const q=Q[dayN()%Q.length].q;B.innerHTML='Загружаю…';let d={};try{const r=await fetch(b+'.json?'+Date.now());if(!r.ok)throw new Error(r.status);d=await r.json()||{}}catch(e){B.textContent='Не получилось загрузить: '+e.message;return}
- let h=`<b>${esc(q)}</b>`;
- if(!d.him)h+=(d.her?'<p>Она уже ответила. Ответь и ты, чтобы увидеть её ответ 💗</p>':'')+'<label>Твой ответ</label><textarea id="qa1" style="min-height:110px"></textarea><div style="margin-top:8px"><button class="btn" id="qa2">Отправить</button></div>';
- else h+=`<label>Твой ответ</label><div>${esc(d.him.text)}</div><label>Её ответ</label><div>${d.her?esc(d.her.text):'Она ещё не ответила'}</div>`;
- B.innerHTML=h;const s=$('qa2');s&&(s.onclick=async()=>{const t=$('qa1').value.trim();if(!t)return;const r=await fetch(b+'/him.json',{method:'PUT',body:JSON.stringify({t:Date.now(),text:t})});r.ok?drawQa():B.insertAdjacentHTML('beforeend','<p class="dirty">Не отправилось, проверь правила Firebase</p>')})}
+ const base=`${u.replace(/\/$/,'')}/qa/${k}/q`;B.textContent='Загружаю…';let D;
+ try{const r=await fetch(base+'.json?'+Date.now());D=await r.json();if(!r.ok||(D&&D.error))throw new Error((D&&D.error)||r.status)}
+ catch(e){B.innerHTML='<p class="dirty">Не получилось загрузить: '+esc(e.message)+'.<br>Скорее всего, в Firebase не обновлены правила (вкладка Rules): скопируй их из настроек и нажми Publish.</p>';return}
+ D=D||{};
+ B.innerHTML=Q.map((x,i)=>{const a=D[qid(x)]||{};let h=`<div class="it" style="display:block"><b>${esc(x.q)}</b>`;
+  if(!a.him)h+=(a.her?'<div class="hint">Она уже ответила. Ответь и ты, чтобы увидеть её ответ 💗</div>':'')+`<textarea data-i="${i}" style="min-height:80px;margin-top:6px"></textarea><div style="margin-top:6px"><button class="btn" data-s="${i}">Отправить</button></div>`;
+  else h+=`<label>Твой ответ</label><div>${esc(a.him.text)}</div><label>Её ответ</label><div>${a.her?esc(a.her.text):'Она ещё не ответила'}</div>`;
+  return h+'</div>'}).join('');
+ B.querySelectorAll('button[data-s]').forEach(b=>b.onclick=async()=>{const i=+b.dataset.s,t=B.querySelector(`textarea[data-i="${i}"]`).value.trim();if(!t)return;
+  try{const r=await fetch(`${base}/${qid(Q[i])}/him.json`,{method:'PUT',body:JSON.stringify({t:Date.now(),text:t})});if(!r.ok)throw new Error(r.status);drawQa()}
+  catch(e){b.insertAdjacentHTML('afterend','<div class="dirty">Не отправилось: '+esc(e.message)+'. Проверь правила Firebase.</div>')}})}
 $('qBtn').onclick=()=>{$('qs').classList.add('on');window.scrollTo(0,0);drawQa()};$('qBack').onclick=()=>$('qs').classList.remove('on');$('qRef').onclick=drawQa;
 /* ---------- активность ---------- */
 let base=null,EV=[],stats={};
@@ -219,12 +228,13 @@ function draw(){const L=$('list');L.innerHTML='<b>Письма</b>';
  data.letters.forEach((l,i)=>{const d=document.createElement('div');d.className='it';
   d.innerHTML=`<div class="em" style="background:${l.c}">${esc(l.emoji)}</div><div class="t"><b>${esc(l.title)}</b><small>${l.type==='secret'?'секретное':l.type==='hug'?'объятия':'обычное'}${l.unlock?' · с '+l.unlock:''}${(l.photos&&l.photos.length)?' · фото '+l.photos.length:''}${statStr(l.id)}</small></div><button class="ic" data-a="up">▲</button><button class="ic" data-a="dn">▼</button><button class="ic" data-a="ed">✏️</button><button class="ic" data-a="rm">🗑</button>`;
   d.querySelectorAll('button').forEach(b=>b.onclick=()=>act(data.letters,b.dataset.a,i,()=>edit(i),draw,b));L.appendChild(d)})}
+let undoT;function undoBar(t,fn){clearTimeout(undoT);$('undoT').textContent=t;$('undo').classList.add('on');$('undoB').onclick=()=>{clearTimeout(undoT);$('undo').classList.remove('on');fn()};undoT=setTimeout(()=>$('undo').classList.remove('on'),6000)}
 function arm(btn,txt){if(btn.dataset.arm)return true;const old=btn.textContent;btn.dataset.arm='1';btn.textContent=txt;btn.style.cssText='font-size:14px;color:#fff;background:#d63a6a;border-radius:999px;padding:6px 10px';
  setTimeout(()=>{if(btn.isConnected){delete btn.dataset.arm;btn.textContent=old;btn.style.cssText=''}},3000);return false}
 function act(A,a,i,editFn,redraw,btn){
  if(a==='up'&&i>0)[A[i-1],A[i]]=[A[i],A[i-1]];
  if(a==='dn'&&i<A.length-1)[A[i+1],A[i]]=[A[i],A[i+1]];
- if(a==='rm'){if(!arm(btn,'Удалить?'))return;A.splice(i,1)}
+ if(a==='rm'){const it=A.splice(i,1)[0];undoBar('Удалено',()=>{A.splice(Math.min(i,A.length),0,it);mark();redraw()})}
  if(a==='ed')return editFn();
  mark();redraw()}
 $('add').onclick=()=>edit(-1);
