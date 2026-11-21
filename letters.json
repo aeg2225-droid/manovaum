@@ -53,7 +53,14 @@
     "tgToken": "9078150540:AAHNgtDrlUE1TMSSGKEHcldAlDJjFxtP14I",
     "tgChat": "6056885253",
     "tgMode": "all",
-    "tgWorker": ""
+    "tgWorker": "",
+    "questions": [],
+    "dates": [],
+    "quest": [],
+    "scratch": [],
+    "puzzle": [],
+    "places": [],
+    "tgHer": "1846658892"
   },
   "letters": [
     {
@@ -143,6 +150,20 @@
       "type": "secret",
       "unlock": "",
       "audio": ""
+    },
+    {
+      "id": "l1795223406455",
+      "emoji": "💌",
+      "title": "Открой, когда мы поссорились",
+      "text": "Открой, когда мы поссорились",
+      "c": "#fbd3de",
+      "c2": "#f4b6c8",
+      "type": "",
+      "bg": "sakura",
+      "secretMsg": "",
+      "unlock": "",
+      "audio": "",
+      "photos": []
     }
   ]
 }
