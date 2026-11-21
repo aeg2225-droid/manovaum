@@ -35,7 +35,7 @@ textarea{min-height:150px}
 .bar{position:fixed;left:0;right:0;bottom:0;padding:12px 14px calc(12px + env(safe-area-inset-bottom,0));background:var(--card);border-top:1px solid var(--line);display:flex;gap:10px;align-items:center;justify-content:center;z-index:20}
 .sheet{position:fixed;inset:0;background:var(--bg);overflow-y:auto;display:none;padding:env(safe-area-inset-top,0) 0 40px}
 .sheet.on{display:block}
-#act{z-index:8}#sheet{z-index:5}#lsheet{z-index:6}#esheet{z-index:7}
+#sheet{z-index:25}#lsheet{z-index:26}#esheet{z-index:27}#act{z-index:28}
 #msg{font-size:14px;text-align:center;min-height:20px}
 .dirty{color:#d63a6a}
 .ph{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0}
@@ -114,7 +114,7 @@ textarea{min-height:150px}
  <h1>Активность 📬</h1><div class="box" id="actSum"></div><div class="box" id="actList"></div>
  <div class="row" style="justify-content:center;gap:12px"><button class="btn g" id="actBack">Назад</button><button class="btn" id="actRef">Обновить</button></div>
 </div></div>
-<div class="sheet" id="qs" style="z-index:9"><div class="wrap">
+<div class="sheet" id="qs" style="z-index:29"><div class="wrap">
  <h1>Вопрос дня 💬</h1><div class="box" id="qBody"></div>
  <div class="row" style="justify-content:center;gap:12px"><button class="btn g" id="qBack">Назад</button><button class="btn" id="qRef">Обновить</button></div>
 </div></div>
