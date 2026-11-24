@@ -1,17 +1,10 @@
-// ==========================================================
-// «Открой когда»: клиентский модуль для Supabase
-// Подключение: <script type="module"> import * as api from './couple-api.js'; </script>
-// ==========================================================
+// Клиентский модуль для Supabase («Открой когда»)
 
-// Заполните из Supabase → Project Settings → API
-// ВАЖНО: здесь только anon key. service_role ключ сюда НЕ вставлять никогда.
-const SUPABASE_URL = 'https://YOUR-PROJECT-ID.supabase.co';
-const SUPABASE_ANON_KEY = 'YOUR-ANON-KEY';
+const SUPABASE_URL = 'https://ooxgkegfiorzgxdvceru.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_l1m6bKDVWxKX6VI27UrS9Q_BPbizo5t';
 
 const TOKEN_KEY = 'ow_session_token';
 const DEVICE_KEY = 'ow_device_id';
-
-// ---------- служебное ----------
 
 function deviceId() {
   let id = localStorage.getItem(DEVICE_KEY);
@@ -28,7 +21,6 @@ async function rpc(name, args = {}) {
     headers: {
       'Content-Type': 'application/json',
       apikey: SUPABASE_ANON_KEY,
-      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
     },
     body: JSON.stringify(args),
   });
@@ -36,7 +28,6 @@ async function rpc(name, args = {}) {
   const data = await res.json().catch(() => null);
 
   if (!res.ok) {
-    // Ошибки из SQL приходят в поле message: invalid_credentials, too_many_devices и т.д.
     const code = data?.message || `HTTP ${res.status}`;
     const err = new Error(code);
     err.code = code;
@@ -48,8 +39,6 @@ async function rpc(name, args = {}) {
 function token() {
   return localStorage.getItem(TOKEN_KEY);
 }
-
-// ---------- вход и выход ----------
 
 export async function login(login, password) {
   const rows = await rpc('login_couple', {
@@ -73,8 +62,6 @@ export function isLoggedIn() {
   return !!token();
 }
 
-// ---------- истории и сообщения (своей пары) ----------
-
 export function getStories() {
   return rpc('get_stories', { p_token: token() });
 }
@@ -84,11 +71,7 @@ export function createStory(title) {
 }
 
 export function getMessages(storyId, since = null) {
-  return rpc('get_messages', {
-    p_token: token(),
-    p_story: storyId,
-    p_since: since,
-  });
+  return rpc('get_messages', { p_token: token(), p_story: storyId, p_since: since });
 }
 
 export function postMessage(storyId, body) {
@@ -100,10 +83,6 @@ export function postMessage(storyId, body) {
   });
 }
 
-/**
- * Обновление «почти в реальном времени» (раз в 3 секунды).
- * onNew получает только новые сообщения. Возвращает функцию остановки.
- */
 export function watchMessages(storyId, onNew, intervalMs = 3000) {
   let last = null;
   let stopped = false;
@@ -126,8 +105,6 @@ export function watchMessages(storyId, onNew, intervalMs = 3000) {
   return () => { stopped = true; };
 }
 
-// ---------- администрирование ----------
-
 export function adminCreateCouple() {
   return rpc('admin_create_couple', { p_token: token() });
 }
@@ -137,16 +114,9 @@ export function adminListCouples() {
 }
 
 export function adminSetBlocked(coupleId, blocked) {
-  return rpc('admin_set_blocked', {
-    p_token: token(),
-    p_couple: coupleId,
-    p_blocked: blocked,
-  });
+  return rpc('admin_set_blocked', { p_token: token(), p_couple: coupleId, p_blocked: blocked });
 }
 
 export function adminDeleteCouple(coupleId) {
-  return rpc('admin_delete_couple', {
-    p_token: token(),
-    p_couple: coupleId,
-  });
+  return rpc('admin_delete_couple', { p_token: token(), p_couple: coupleId });
 }
