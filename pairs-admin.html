@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Админка «Открой когда»</title>
+<style>
+  body { font-family: system-ui, sans-serif; background: #1a1418; color: #f3e9ee; margin: 0; padding: 20px; }
+  .box { max-width: 720px; margin: 0 auto; }
+  input { width: 100%; box-sizing: border-box; padding: 12px; margin: 6px 0; border-radius: 8px; border: 1px solid #555; background: #2a2228; color: #fff; font-size: 16px; }
+  button { padding: 12px 16px; margin: 6px 4px 6px 0; border: 0; border-radius: 8px; background: #c2185b; color: #fff; font-size: 15px; cursor: pointer; }
+  button.gray { background: #555; }
+  button.red { background: #8b1a1a; }
+  .card { background: #2a2228; border-radius: 10px; padding: 14px; margin: 10px 0; }
+  .new { background: #3d2e10; border-radius: 10px; padding: 14px; margin: 10px 0; font-size: 18px; }
+  .muted { color: #aaa; font-size: 14px; }
+  .error { color: #ff8a8a; margin: 8px 0; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="box">
+
+  <div id="loginScreen">
+    <h2>Вход</h2>
+    <input id="login" placeholder="Логин" autocomplete="username">
+    <input id="password" type="password" placeholder="Пароль" autocomplete="current-password">
+    <button id="loginBtn">Войти</button>
+    <div id="loginError" class="error"></div>
+  </div>
+
+  <div id="adminScreen" class="hidden">
+    <h2>Админка</h2>
+    <button id="createBtn">+ Создать новую пару</button>
+    <button id="logoutBtn" class="gray">Выйти</button>
+    <div id="newPair" class="new hidden"></div>
+    <div id="adminError" class="error"></div>
+    <h3>Пары</h3>
+    <div id="list"></div>
+  </div>
+
+</div>
+
+<script type="module">
+  import * as api from './couple-api.js';
+
+  const $ = (id) => document.getElementById(id);
+
+  const messages = {
+    invalid_credentials: 'Неверный логин или пароль',
+    blocked: 'Эта пара заблокирована',
+    too_many_devices: 'Уже вошли два устройства. Сначала выйдите на одном из них',
+  };
+  const text = (e) => messages[e.code] || e.message;
+
+  function showAdmin() {
+    $('loginScreen').classList.add('hidden');
+    $('adminScreen').classList.remove('hidden');
+    loadList();
+  }
+
+  function showLogin() {
+    $('adminScreen').classList.add('hidden');
+    $('loginScreen').classList.remove('hidden');
+  }
+
+  $('loginBtn').onclick = async () => {
+    $('loginError').textContent = '';
+    try {
+      const { isAdmin } = await api.login($('login').value, $('password').value);
+      if (isAdmin) {
+        showAdmin();
+      } else {
+        await api.logout();
+        $('loginError').textContent = 'У этого аккаунта нет прав администратора';
+      }
+    } catch (e) {
+      $('loginError').textContent = text(e);
+    }
+  };
+
+  $('logoutBtn').onclick = async () => {
+    await api.logout();
+    showLogin();
+  };
+
+  $('createBtn').onclick = async () => {
+    $('adminError').textContent = '';
+    try {
+      const [pair] = await api.adminCreateCouple();
+      $('newPair').classList.remove('hidden');
+      $('newPair').innerHTML =
+        `<b>Новая пара создана.</b><br>` +
+        `Логин: <b>${pair.out_login}</b><br>` +
+        `Пароль: <b>${pair.out_password}</b><br>` +
+        `<span class="muted">Пароль показывается один раз. Скопируйте его и отправьте паре.</span>`;
+      loadList();
+    } catch (e) {
+      $('adminError').textContent = text(e);
+    }
+  };
+
+  async function loadList() {
+    $('adminError').textContent = '';
+    try {
+      const rows = await api.adminListCouples();
+      const list = $('list');
+      list.innerHTML = '';
+      if (!rows.length) {
+        list.innerHTML = '<p class="muted">Пар пока нет</p>';
+        return;
+      }
+      for (const r of rows) {
+        const div = document.createElement('div');
+        div.className = 'card';
+        const status = r.couple_is_admin ? 'администратор' : (r.couple_is_blocked ? 'заблокирована' : 'активна');
+        div.innerHTML =
+          `<b>${r.couple_login}</b> — ${status}<br>` +
+          `<span class="muted">Создана: ${new Date(r.couple_created_at).toLocaleString('ru-RU')} · ` +
+          `входов: ${r.couple_login_count} · устройств сейчас: ${r.couple_active_devices}</span><br>`;
+
+        if (!r.couple_is_admin) {
+          const blockBtn = document.createElement('button');
+          blockBtn.className = 'gray';
+          blockBtn.textContent = r.couple_is_blocked ? 'Разблокировать' : 'Заблокировать';
+          blockBtn.onclick = async () => {
+            await api.adminSetBlocked(r.couple_id, !r.couple_is_blocked);
+            loadList();
+          };
+
+          const delBtn = document.createElement('button');
+          delBtn.className = 'red';
+          delBtn.textContent = 'Удалить';
+          delBtn.onclick = async () => {
+            if (!confirm(`Удалить пару ${r.couple_login} и все её истории?`)) return;
+            await api.adminDeleteCouple(r.couple_id);
+            loadList();
+          };
+
+          div.append(blockBtn, delBtn);
+        }
+        list.append(div);
+      }
+    } catch (e) {
+      $('adminError').textContent = text(e);
+    }
+  }
+
+  if (api.isLoggedIn()) {
+    showAdmin();
+  }
+</script>
+</body>
+</html>
