@@ -217,21 +217,28 @@ $('tPairs').onclick=()=>showTab('pairs');
 $('tSite').onclick=()=>showTab('site');
 
 /* ---------- пары (владелец) ---------- */
+/* ---------- пары (владелец) ---------- */
 async function loadPairs(){const L=$('pairList');L.textContent='Загружаю…';
  try{const rows=await call('admin_list_couples');L.innerHTML='';
   rows.forEach(r=>{const d=document.createElement('div');d.className='it';
    const st=r.couple_is_admin?'владелец':r.couple_is_blocked?'заблокирована':'активна';
-   d.innerHTML=`<div class="t"><b>${esc(r.couple_login)}</b><small>${st} · входов ${r.couple_login_count} · устройств сейчас ${r.couple_active_devices} · создана ${new Date(r.couple_created_at).toLocaleDateString('ru-RU')}</small></div>`;
+   d.innerHTML=`<div class="t"><b>${esc(r.couple_label||r.couple_login)}</b><small>${esc(r.couple_login)} · ${st} · входов ${r.couple_login_count} · устройств сейчас ${r.couple_active_devices} · создана ${new Date(r.couple_created_at).toLocaleDateString('ru-RU')}</small></div>`;
+   const ren=document.createElement('button');ren.className='btn g';ren.textContent='Переименовать';
+   ren.onclick=async()=>{const n=prompt('Новое название пары',r.couple_label||'');if(n===null||!n.trim())return;
+    try{await call('admin_rename_couple',{p_couple:r.couple_id,p_label:n.trim()});loadPairs()}catch(e){alert('Не получилось: '+e.message)}};
+   d.append(ren);
    if(!r.couple_is_admin){
     const bb=document.createElement('button');bb.className='btn g';bb.textContent=r.couple_is_blocked?'Разблокировать':'Заблокировать';
-    bb.onclick=async()=>{await call('admin_set_blocked',{p_couple:r.couple_id,p_blocked:!r.couple_is_blocked});loadPairs()};
+    bb.onclick=async()=>{try{await call('admin_set_blocked',{p_couple:r.couple_id,p_blocked:!r.couple_is_blocked});loadPairs()}catch(e){alert('Не получилось: '+e.message)}};
     const db=document.createElement('button');db.className='btn g';db.textContent='Удалить';
-    db.onclick=async()=>{if(!confirm('Удалить пару '+r.couple_login+' и все её данные?'))return;try{await call('admin_delete_couple',{p_couple:r.couple_id});loadPairs()}catch(e){alert('Не удалилось: '+e.message)}};
+    db.onclick=async()=>{if(!confirm('Удалить пару '+(r.couple_label||r.couple_login)+' и все её данные?'))return;
+     try{await call('admin_delete_couple',{p_couple:r.couple_id});loadPairs()}catch(e){alert('Не удалилось: '+e.message)}};
     d.append(bb,db)}
    L.appendChild(d)})}
  catch(e){L.textContent='Ошибка: '+e.message}}
-$('create').onclick=async()=>{try{const [p]=await call('admin_create_couple');const N=$('newPair');N.style.display='block';
-  N.innerHTML=`<b>Новая пара создана</b><br>Логин: <b>${esc(p.out_login)}</b><br>Пароль: <b>${esc(p.out_password)}</b><br><small>Пароль показывается один раз. Скопируй и отправь паре.</small>`;loadPairs()}
+$('create').onclick=async()=>{const n=prompt('Название пары (например, «Аня и Миша»)');if(n===null)return;
+ try{const [p]=await call('admin_create_couple',{p_label:n.trim()});const N=$('newPair');N.style.display='block';
+  N.innerHTML=`<b>Новая пара создана</b><br>Название: <b>${esc(n.trim()||'Без названия')}</b><br>Логин: <b>${esc(p.out_login)}</b><br>Пароль: <b>${esc(p.out_password)}</b><br><small>Пароль показывается один раз. Скопируй и отправь паре.</small>`;loadPairs()}
  catch(e){alert('Не получилось: '+e.message)}};
 
 /* ---------- сайт: загрузка и публикация ---------- */
