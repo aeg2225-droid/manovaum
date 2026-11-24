@@ -296,14 +296,25 @@ const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 const sha=async s=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode('ow:'+s)))].map(b=>b.toString(16).padStart(2,'0')).join('');
 const ls={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 
-/* ---------- связь с базой ---------- */
-const SB_URL='https://ooxgkegfiorzgxdvceru.supabase.co',SB_KEY='sb_publishable_l1m6bKDVWxKX6VI27UrS9Q_BPbizo5t';
-const TK='ow_session_token',DK='ow_device_id';
+/* ---------- связь с API (ключей в браузере нет) ---------- */
+const API='https://api.manovaum.ru';
+const TK='ow_session_token';
 const tok=()=>localStorage.getItem(TK);
-const devId=()=>{let d=localStorage.getItem(DK);if(!d){d=crypto.randomUUID();localStorage.setItem(DK,d)}return d};
-async function rpc(fn,args){const r=await fetch(`${SB_URL}/rest/v1/rpc/${fn}`,{method:'POST',headers:{'Content-Type':'application/json',apikey:SB_KEY},body:JSON.stringify(args||{})});const d=await r.json().catch(()=>null);if(!r.ok){const e=new Error(d&&d.message||r.status);e.code=d&&d.message;throw e}return d}
-const call=(fn,args={})=>rpc(fn,{p_token:tok(),...args});
-const ERR={invalid_credentials:'Неверный логин или пароль',blocked:'Эта пара заблокирована',too_many_devices:'Уже открыто на двух устройствах. Выйди на одном из них'};
+const devId=()=>'';
+const ERR={invalid_credentials:'Неверный логин или пароль',blocked:'Эта пара заблокирована',too_many_devices:'Уже открыто на двух устройствах. Выйди на одном из них',too_many_attempts:'Слишком много попыток. Подожди 15 минут'};
+async function post(path,body){
+  const r=await fetch(API+path,{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(body||{})});
+  const d=await r.json().catch(()=>null);
+  if(!r.ok){const e=new Error((d&&d.message)||r.status);e.code=d&&d.message;throw e}
+  return d;
+}
+async function rpc(fn,args){
+  const a={...(args||{})};delete a.p_token;delete a.p_device;
+  if(fn==='login_couple'){const d=await post('/login',{login:a.p_login,password:a.p_password});return [{session_token:'cookie',admin_flag:!!d.isAdmin}]}
+  if(fn==='logout_couple')return post('/logout',{});
+  return post('/rpc/'+fn,a);
+}
+const call=(fn,args={})=>rpc(fn,args);
 
 async function loadSite(){
   let txt=JSON.stringify(await call('get_site'));
@@ -337,18 +348,17 @@ const mdOf=d=>{const p=d.split('-');return(+p[1])+'-'+(+p[2])};
 /* ---------- запуск ---------- */
 function showLogin(){$('login').classList.add('on')}
 async function init(){
-  if(!tok()){showLogin();return}
-  $('out').style.display='block';
   try{await loadSite()}
   catch(e){
-    if(e.code==='unauthorized'){localStorage.removeItem(TK);$('out').style.display='none';showLogin();return}
+    if(e.code==='unauthorized'){showLogin();return}
     $('view').innerHTML='<div class="err">Не получилось загрузить письма 😢<br>Попробуй обновить страницу.</div>';return;
   }
+  $('out').style.display='block';
   boot();
 }
 $('lbtn').onclick=async()=>{$('lerr').textContent='';
-  try{const rows=await rpc('login_couple',{p_login:$('llogin').value.trim(),p_password:$('lpass').value,p_device:devId()});
-    localStorage.setItem(TK,rows[0].session_token);$('login').classList.remove('on');$('out').style.display='block';
+  try{await rpc('login_couple',{p_login:$('llogin').value.trim(),p_password:$('lpass').value});
+    localStorage.setItem(TK,'cookie');$('login').classList.remove('on');$('out').style.display='block';
     await loadSite();boot()}
   catch(e){$('lerr').textContent=ERR[e.code]||e.message}};
 $('lpass').onkeydown=e=>{if(e.key==='Enter')$('lbtn').click()};
