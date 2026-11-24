@@ -226,7 +226,7 @@ async function loadPairs(){const L=$('pairList');L.textContent='Загружаю
     const bb=document.createElement('button');bb.className='btn g';bb.textContent=r.couple_is_blocked?'Разблокировать':'Заблокировать';
     bb.onclick=async()=>{await call('admin_set_blocked',{p_couple:r.couple_id,p_blocked:!r.couple_is_blocked});loadPairs()};
     const db=document.createElement('button');db.className='btn g';db.textContent='Удалить';
-    db.onclick=async()=>{if(!confirm('Удалить пару '+r.couple_login+' и все её данные?'))return;await call('admin_delete_couple',{p_couple:r.couple_id});loadPairs()};
+    db.onclick=async()=>{if(!confirm('Удалить пару '+r.couple_login+' и все её данные?'))return;try{await call('admin_delete_couple',{p_couple:r.couple_id});loadPairs()}catch(e){alert('Не удалилось: '+e.message)}};
     d.append(bb,db)}
    L.appendChild(d)})}
  catch(e){L.textContent='Ошибка: '+e.message}}
