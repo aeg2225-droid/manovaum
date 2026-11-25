@@ -9,8 +9,8 @@
 <style>
 :root{--ink:#4a2a3a;--bg:#fbeef4;--card:rgba(255,255,255,.72);--line:rgba(224,116,156,.22);--acc:#e0749c;--soft:#8a5a70}
 @media (prefers-color-scheme:dark){:root{--ink:#f6e3ea;--bg:#1b1224;--card:rgba(52,38,62,.7);--line:rgba(240,160,190,.18);--acc:#f08fb3;--soft:#c9a9b9}}
-html[data-th="dark"]{--bg:#1b1224;--card:rgba(52,38,62,.7);--line:rgba(240,160,190,.18);--acc:#f08fb3;--ink:#f6e3ea;--soft:#c9a9b9}
-html[data-th="light"]{--bg:#fbeef4;--card:rgba(255,255,255,.72);--line:rgba(224,116,156,.22);--acc:#e0749c;--ink:#4a2a3a;--soft:#8a5a70}
+html[data-th="dark"]{--bg:#1b1224;--card:rgba(52,38,62,.7);--line:rgba(240,160,190,.18);--acc:#f08fb3;--ink:#f6e3ea;--soft:#c9a9b9;color-scheme:dark}
+html[data-th="light"]{--bg:#fbeef4;--card:rgba(255,255,255,.72);--line:rgba(224,116,156,.22);--acc:#e0749c;--ink:#4a2a3a;--soft:#8a5a70;color-scheme:light}
 *{box-sizing:border-box}
 body{margin:0;color:var(--ink);font:16px/1.4 -apple-system,"Segoe UI",Roboto,sans-serif;padding:env(safe-area-inset-top,0) 0 110px;background:radial-gradient(900px 500px at 10% -10%,rgba(224,116,156,.25),transparent 60%),radial-gradient(800px 500px at 110% 10%,rgba(160,120,255,.2),transparent 60%),var(--bg);min-height:100vh}
 h1{font-family:"Marck Script",cursive;font-weight:400;font-size:34px;margin:0;text-align:center;padding:18px 10px 4px;background:linear-gradient(90deg,var(--acc),#b07cff,var(--acc));background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shimmer 8s linear infinite}
@@ -22,6 +22,10 @@ label{display:block;font-size:13px;color:var(--soft);font-weight:600;margin:10px
 input,textarea,select{width:100%;font:inherit;color:var(--ink);background:rgba(255,255,255,.55);border:1px solid var(--line);border-radius:12px;padding:10px;transition:border-color .2s,box-shadow .2s}
 html[data-th="dark"] input,html[data-th="dark"] textarea,html[data-th="dark"] select{background:rgba(255,255,255,.05)}
 input:focus,textarea:focus,select:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 4px rgba(224,116,156,.2)}
+select{color:var(--ink)}
+select option{background:#fff;color:#4a2a3a}
+html[data-th="dark"] select option,
+html[data-th="dark"] select optgroup{background:#2a1f33;color:#f6e3ea}
 input[type=checkbox]{width:24px;height:24px}
 input[type=date]{display:block;min-width:0;max-width:100%;height:46px;-webkit-appearance:none;appearance:none;text-align:left}
 input[type=date]::-webkit-date-and-time-value{text-align:left;min-height:1.2em}
@@ -67,15 +71,7 @@ html[data-th="dark"] .bar{background:rgba(30,20,38,.75)}
 #login{max-width:360px;margin:60px auto;display:none}
 #app{display:none}
 #newPair{display:none;font-size:17px;background:#3d2e10;color:#fff;border-radius:14px;padding:12px;margin:10px 0;animation:fadeUp .4s ease both}
-.lbl-cap{font-size:13px;color:var(--soft)}
 @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
- /* ===== ВЫПАДАЮЩИЕ СПИСКИ В ТЁМНОЙ ТЕМЕ ===== */
-select{color:var(--ink)}
-select option{background:#fff;color:#4a2a3a}
-html[data-th="dark"] select option,
-html[data-th="dark"] select optgroup{background:#2a1f33;color:#f6e3ea}
-html[data-th="dark"] select{color-scheme:dark}
-html[data-th="light"] select{color-scheme:light}
 </style>
 </head>
 <body>
