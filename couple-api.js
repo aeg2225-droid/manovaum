@@ -306,6 +306,12 @@ html[data-theme="rose"] .letter:not(.secret) h2{color:#ffc2d1}
 html[data-theme="rose"] .letter:not(.secret) .fb textarea{background:#ffffff14;color:#ffeef3;border-color:#ff8fa888}
 html[data-theme="rose"] .thp button.on{color:#3a0f22}
 html[data-theme="rose"] .chip{border:1px solid #ffffff22}
+/* ===== УБРАТЬ РАЗМЫТИЕ НА ТЕЛЕФОНЕ ===== */
+*,*::before,*::after{backdrop-filter:none !important;-webkit-backdrop-filter:none !important}
+.ov:not(.on),#hugov:not(.on),.gate:not(.on),.hol:not(.on),.thp:not(.on),.snack:not(.on),.toast:not(.on){display:none !important}
+.env{filter:none !important}
+.grid .env{animation:float 6s ease-in-out infinite !important}
+@media (max-width:700px){#fx{display:none !important}}
 </style>
 </head>
 <body>
