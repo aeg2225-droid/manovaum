@@ -338,6 +338,7 @@ html[data-theme="rose"] .chip{border:1px solid #ffffff22}
 <div id="tod"></div>
 <div class="bg" id="bg"></div>
 <div id="bigDays"></div>
+<canvas id="fx"></canvas>
 <div class="gate" id="login"><div style="font-size:54px">💌</div><div style="font-size:26px">Вход</div><input class="lg" id="llogin" placeholder="Логин" autocomplete="username"><input class="lg" id="lpass" type="password" placeholder="Пароль" autocomplete="current-password"><button class="btn" id="lbtn">Войти</button><small id="lerr"></small></div>
 <button id="mus">♪</button><button id="thm" title="Оформление">🎨</button><button id="out">⎋ Выйти</button><div class="thp" id="thp"><button data-th="sakura">🌸 Сакура</button><button data-th="night">🌙 Ночь</button><button data-th="vintage">📜 Винтаж</button><button data-th="winter">❄️ Зима</button><button data-th="sunset">🌅 Закат</button><button data-th="lavender">💜 Лаванда</button><button data-th="mint">🌿 Мята</button><button data-th="rose">🌹 Роза</button></div>
 <header>
@@ -407,7 +408,7 @@ for(let i=0;i<14;i++){const s=document.createElement('span');s.textContent=SEA[i
 /* ---------- сезонные частицы ---------- */
 (()=>{
  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
- const c=$('fx'),x=c.getContext('2d');
+ const c=$('fx');if(!c)return;const x=c.getContext('2d');
  const kind=(mo===11||mo<2)?'snow':mo<5?'petal':mo<8?'firefly':'leaf';
  const N=innerWidth<600?26:44;
  const size=()=>{c.width=innerWidth*devicePixelRatio;c.height=innerHeight*devicePixelRatio;x.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0)};
