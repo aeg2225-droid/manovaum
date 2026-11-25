@@ -312,6 +312,7 @@ html[data-theme="rose"] .chip{border:1px solid #ffffff22}
 .env{filter:none !important}
 .grid .env{animation:float 6s ease-in-out infinite !important}
 @media (max-width:700px){#fx{display:none !important}}
+.ov,.ov.on{background:#2c1426f2 !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important}
 </style>
 </head>
 <body>
