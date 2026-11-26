@@ -33,7 +33,7 @@ header nav a:hover{color:var(--ink)}
 .cur{display:inline-block;width:8px;height:1em;background:var(--acc);vertical-align:-2px;animation:b 1s steps(2) infinite}
 @keyframes b{50%{opacity:0}}
 h2{font:700 clamp(26px,4vw,40px)/1.1 Unbounded,sans-serif;letter-spacing:-.02em;margin:0 0 32px}
-section{padding:56px 0}
+section{padding:56px 0}#lily{display:block;width:100%;height:clamp(400px,64vw,620px);margin-top:40px;color:var(--ink);touch-action:pan-y}
 .list{border-top:1px solid var(--line)}
 details{border-bottom:1px solid var(--line)}
 summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:1fr auto;gap:8px 24px;align-items:center;padding:28px 0}
@@ -71,6 +71,7 @@ footer{padding:0 0 40px;color:var(--mute);font-size:14px}
 <h1>Делаю боты, сайты<span>и анимацию</span></h1>
 <p>Пишу код, который работает каждый день: Discord-боты, сайты с личными кабинетами, автоматизация и короткие ролики.</p>
 <div class="run" aria-hidden="true"><i>$</i> python bot.py<br>Бот запущен. Готов к новым проектам.<span class="cur"></span></div>
+<canvas id="lily" role="img" aria-label="Анимация: символы кода рисуют плачущую лилию"></canvas>
 </div>
 
 <section id="work">
@@ -148,5 +149,57 @@ footer{padding:0 0 40px;color:var(--mute);font-size:14px}
 </main>
 <footer>© 2026 manovaum</footer>
 </div>
+<script>
+(function(){
+var cv=document.getElementById('lily');if(!cv)return;
+var ctx=cv.getContext('2d'),reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+var CH='{}()[]<>/;=+*#&|01'.split(''),P=[],TIPS=[];
+function ch(){return CH[Math.random()*CH.length|0]}
+function add(x,y,z){P.push({x:x,y:y,z:z,c:ch()})}
+function bez(t){var u=1-t;return[3*u*t*t*0.9+t*t*t,u*u*u*-1.7+3*u*u*t*0.9+3*u*t*t*1.1+t*t*t*0.2]}
+for(var i=0;i<=150;i++){var b=bez(i/150);add(b[0],b[1],0)}
+function leaf(t0,sx,sz,len){var b=bez(t0),n=Math.hypot(sx,sz);sx/=n;sz/=n;
+for(var i=0;i<=44;i++){var s=i/44,w=0.12*Math.pow(Math.sin(Math.PI*s),0.8);
+[-1,0,1].forEach(function(q){if(q===0&&i%2)return;
+add(b[0]+sx*len*s-sz*w*q,b[1]+len*(0.75*s-0.65*s*s),sz*len*s+sx*w*q)})}}
+leaf(0.12,-1,0.5,0.85);leaf(0.3,1,-0.6,0.75);
+var cx=1,cy=0.2,Q=[],defs=[];
+[90,210,330].forEach(function(d){defs.push([d,1,0.3])});
+[30,150,270].forEach(function(d){defs.push([d,0.86,0.24])});
+defs.forEach(function(d){var ph=d[0]*Math.PI/180,L=d[1],Wd=d[2],rx=Math.cos(ph),rz=Math.sin(ph);
+for(var i=0;i<=28;i++){var s=i/28,u=(0.1+0.6*Math.pow(s,1.5))*L,y=cy-(1.0*s-0.3*s*s*s)*L,w=Wd*Math.pow(Math.sin(Math.PI*s),0.75);
+[-1,-0.5,0,0.5,1].forEach(function(q){Q.push({s:s,x:cx+rx*u-rz*w*q,y:y,z:rz*u+rx*w*q})});
+if(i===28)TIPS.push({x:cx+rx*u,y:y,z:rz*u})}});
+Q.sort(function(a,b){return a.s-b.s});Q.forEach(function(p){add(p.x,p.y,p.z)});
+for(var k=0;k<6;k++){var a=k*Math.PI/3+0.3;
+for(var i=0;i<=14;i++){var s=i/14,r=0.04+0.22*s;add(cx+Math.cos(a)*r,cy-0.15-0.55*s,Math.sin(a)*r)}}
+var N=P.length,W=0,H=0,dpr=1,t0=performance.now(),px=0,tx=0,run=true,lastFs=0;
+function size(){var r=cv.getBoundingClientRect();dpr=Math.min(devicePixelRatio||1,2);W=r.width;H=r.height;cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);lastFs=0}
+function frame(now){
+var t=(now-t0)/1000,prog=reduce?1:Math.min(1,t/7);prog=1-Math.pow(1-prog,2);
+var shown=Math.floor(prog*N);px+=(tx-px)*0.05;
+var ang=reduce?0.55:0.75*Math.sin(t*0.35)+px*0.6,ca=Math.cos(ang),sa=Math.sin(ang);
+var S=Math.min(H/3.5,W/3.2),F=4;
+ctx.clearRect(0,0,W,H);ctx.fillStyle=getComputedStyle(cv).color;ctx.textAlign='center';ctx.textBaseline='middle';
+function proj(x,y,z){var x0=x-0.55,xr=x0*ca+z*sa,zr=-x0*sa+z*ca,sc=F/(F+zr);return[W/2+xr*S*sc,H/2-(y+0.4)*S*sc,sc]}
+function put(c,x,y,z,fs0,al){var p=proj(x,y,z),fs=Math.round(fs0*p[2]*S*0.075*2)/2;
+if(fs!==lastFs){ctx.font='500 '+fs+'px ui-monospace,Consolas,monospace';lastFs=fs}
+ctx.globalAlpha=Math.max(0.15,Math.min(1,al*((p[2]-0.8)*2+0.45)));ctx.fillText(c,p[0],p[1])}
+for(var i=0;i<shown;i++){var p=P[i],edge=prog<1&&shown-i<30;put(p.c,p.x,p.y,p.z,edge?1.6:1,edge?1.4:1)}
+if(prog>=0.97){TIPS.forEach(function(tp,j){var ph=reduce?0.25+j*0.1:(t*0.32+j/6)%1;
+for(var k=0;k<4;k++){var yy=tp.y-ph*1.4-k*0.08;if(yy<-1.9)continue;
+put(k===0?'o':k===1?':':'.',tp.x,yy,tp.z,1.2-k*0.1,(1-ph)*(1-k*0.22))}})}
+ctx.globalAlpha=1;
+if(!reduce){for(var f=0;f<3;f++)P[Math.random()*N|0].c=ch()}
+if(!reduce&&run)requestAnimationFrame(frame)}
+size();
+new ResizeObserver(function(){size();if(reduce)frame(performance.now())}).observe(cv);
+cv.addEventListener('pointermove',function(e){var r=cv.getBoundingClientRect();tx=((e.clientX-r.left)/r.width-0.5)*2});
+cv.addEventListener('pointerleave',function(){tx=0});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){if(reduce)frame(performance.now())});
+new IntersectionObserver(function(en){var v=en[0].isIntersecting;if(v&&!run&&!reduce){run=true;requestAnimationFrame(frame)}run=v;},{threshold:0}).observe(cv);
+if(reduce)frame(performance.now());else requestAnimationFrame(frame);
+})();
+</script>
 </body>
 </html>
