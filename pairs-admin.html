@@ -208,10 +208,20 @@ const ERR={
   too_many_devices:'Уже открыто на двух устройствах. Выйди на одном из них',
   too_many_attempts:'Слишком много попыток. Подожди 15 минут'
 };
-async function post(path,body){
-  const r=await fetch(API+path,{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(body||{})});
-  const d=await r.json().catch(()=>null);
-  if(!r.ok){const e=new Error((d&&d.message)||r.status);e.code=d&&d.message;throw e}
+async function post(path, body) {
+  let r;
+  try {
+    r = await fetch(API + path, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body || {})
+    });
+  } catch (e) {
+    throw new Error('Сеть или сервер недоступны: ' + e.message);
+  }
+  const d = await r.json().catch(() => null);
+  if (!r.ok) throw new Error((d && d.message) || ('Ошибка сервера ' + r.status));
   return d;
 }
 async function rpc(fn,args){
