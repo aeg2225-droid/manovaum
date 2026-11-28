@@ -307,7 +307,7 @@ const sha=async s=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new T
 const ls={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 
 /* ---------- связь с API (ключей в браузере нет) ---------- */
-const API='/api';
+const API='https://api.otkroikogda.ru';
 const TK='ow_session_token';
 const tok=()=>localStorage.getItem(TK);
 const ERR={invalid_credentials:'Неверный логин или пароль',blocked:'Эта пара заблокирована',too_many_devices:'Уже открыто на четырёх устройствах. Выйди на одном из них',too_many_attempts:'Слишком много попыток. Подожди 15 минут'};
