@@ -2,191 +2,390 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <title>Открой, когда…</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#f7c9d8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marck+Script&display=swap&subset=cyrillic" rel="stylesheet">
 <style>
-  body { margin:0; min-height:100vh; font-family:system-ui,sans-serif;
-         background:linear-gradient(160deg,#ffd6e4,#e6d6ff); color:#5a2440;
-         display:flex; flex-direction:column; align-items:center; padding:24px; box-sizing:border-box; }
-  h1 { font-family:'Marck Script',cursive; font-weight:400; color:#c03a6a; margin:24px 0 8px; }
-  .card { background:#fff8; border-radius:16px; padding:20px; width:100%; max-width:360px;
-          box-shadow:0 8px 24px #0002; margin-top:16px; box-sizing:border-box; }
-  input { width:100%; padding:10px; margin:6px 0 12px; border:1px solid #e0a0b8; border-radius:10px;
-          font-size:16px; box-sizing:border-box; }
-  button.main { width:100%; padding:12px; border:0; border-radius:999px; background:#e06a95;
-                color:#fff; font-size:16px; cursor:pointer; }
-  button.link { background:none; border:0; color:#c03a6a; cursor:pointer; text-decoration:underline; margin-top:8px; }
-  .msg { color:#b0234f; min-height:20px; margin-top:8px; font-size:14px; }
-  .letter { background:#fff; border-radius:12px; padding:12px; margin-top:12px; }
-  .letter small { color:#8a5a70; }
-  .hidden { display:none; }
-  footer { margin-top:auto; padding-top:24px; }
+:root{--ink:#6b3a4e;--bg1:#fdeef3;--bg2:#f0e7fb;--card:#ffffffb8;--acc:#e0749c;--hand:"Marck Script","Segoe Script","Brush Script MT",cursive}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100vh;font-family:var(--hand);font-size:20px;color:var(--ink);background:linear-gradient(165deg,var(--bg1),var(--bg2)) fixed;overflow-x:hidden;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+.bg{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.bg span{position:absolute;bottom:-40px;opacity:.4;animation:rise linear infinite}
+@keyframes rise{to{transform:translateY(-115vh) rotate(30deg);opacity:0}}
+header{position:relative;text-align:center;padding:30px 16px 4px}
+h1{margin:0;font-size:clamp(38px,11vw,56px);font-weight:400;line-height:1.05}
+header h1{background:linear-gradient(90deg,var(--acc),var(--ink),var(--acc));background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shimmer 7s linear infinite}
+@keyframes shimmer{to{background-position:200% center}}
+.tools{position:relative;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:14px 10px 4px}
+.btn{font:inherit;font-size:21px;border:0;border-radius:999px;padding:9px 24px;background:var(--acc);color:#fff;cursor:pointer;box-shadow:0 4px 14px #e0749c55;position:relative;overflow:hidden;transition:scale .25s,box-shadow .3s}
+.btn:hover{scale:1.05}.btn:active{scale:.96}
+.btn.ghost{background:var(--card);color:var(--ink);box-shadow:none}
+.view{position:relative;max-width:620px;margin:0 auto;padding:6px 18px 60px}
+.grid{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:22px 16px;max-width:620px;margin:20px auto 60px;padding:0 18px}
+.env{position:relative;aspect-ratio:4/3;cursor:pointer;filter:drop-shadow(0 8px 12px #8a4a6a38);transition:transform .25s,scale .35s,rotate .35s;animation:float 6s ease-in-out infinite,fadeIn .9s ease both}
+.env:nth-child(2n){animation-delay:-2s,0s}.env:nth-child(3n){animation-delay:-4s,0s}
+@keyframes float{50%{transform:translateY(-4px) rotate(.6deg)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.env:active{transform:scale(.97)}
+.env:hover{scale:1.04;rotate:-1.2deg}
+.env:hover .seal{animation:wob .7s ease}
+@keyframes wob{30%{rotate:-14deg}60%{rotate:10deg}}
+.eb{position:absolute;inset:0;border-radius:8px;background:var(--c);overflow:hidden;box-shadow:0 8px 14px #8a4a6a38}
+.eb::before{content:"";position:absolute;inset:0;background:linear-gradient(to top right,transparent 49%,#fff6 50%,transparent 51%) left/50% 100% no-repeat,linear-gradient(to top left,transparent 49%,#fff6 50%,transparent 51%) right/50% 100% no-repeat}
+.eb::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(135deg,transparent 0 6px,#ffffff14 6px 7px)}
+.ef{position:absolute;left:0;right:0;top:0;height:58%;background:var(--c2);clip-path:polygon(0 0,100% 0,50% 100%);border-radius:8px 8px 0 0;transform-origin:top;transition:transform .7s;box-shadow:0 2px 4px #0002}
+.ef::after{content:"";position:absolute;inset:0;background:linear-gradient(#fff4,transparent 60%)}
+.stamp{position:absolute;right:8px;bottom:8px;width:26px;height:30px;border:2px dashed #fff9;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:14px;background:#ffffff40;transform:rotate(5deg)}
+.seal{position:absolute;left:50%;top:58%;width:42px;height:42px;margin:-21px 0 0 -21px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ff8a9e,#c42b4c 65%,#8f1a35);box-shadow:0 3px 6px #0005,inset 0 -2px 4px #0004;display:flex;align-items:center;justify-content:center;font-size:20px;z-index:2}
+.lbl{position:absolute;left:8px;right:44px;bottom:7px;font-size:16px;line-height:1.05;color:#5a2e41;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;z-index:2}
+.badge{position:absolute;top:-8px;left:-6px;z-index:4;background:#fff;color:#d63a6a;border-radius:999px;padding:1px 10px;font-size:16px;box-shadow:0 2px 6px #0003;transform:rotate(-8deg)}
+.ov{position:fixed;inset:0;z-index:10;display:none;align-items:center;justify-content:center;background:#2c1426e6}
+.ov.on{display:flex}
+.stage{position:relative;width:min(300px,80vw);aspect-ratio:3/2;transform:scale(.4);opacity:0;transition:transform .7s,opacity .5s}
+.ov.on .stage{transform:scale(1);opacity:1}
+.stage.gone{transform:translateY(60vh) scale(.8);opacity:0;transition:all .9s}
+.stage .env{height:100%;aspect-ratio:auto;pointer-events:none;animation:none;filter:none}
+.stage.open .ef{transform:rotateX(180deg)}
+.letter{position:fixed;left:50%;top:50%;width:min(92vw,470px);max-height:calc(100% - 40px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));display:none;flex-direction:column;background:#fffaf2;color:#5b3347;border-radius:6px;padding:20px 20px 14px;box-shadow:0 20px 60px #0006;transform:translate(-50%,-50%)}
+.letter.on{display:flex;animation:fly 1s cubic-bezier(.2,.8,.2,1),bounce .6s 1s ease}
+@keyframes fly{from{transform:translate(-50%,20%) scale(.3);opacity:0}}
+@keyframes bounce{40%{transform:translate(-50%,-53%)}70%{transform:translate(-50%,-49%)}}
+.letter h2{margin:0 0 6px;font-weight:400;font-size:26px;text-align:center;line-height:1.1}
+.scr{overflow-y:auto;flex:1;min-height:0}
+.txt{font-size:23px;line-height:30px;white-space:pre-wrap;background:repeating-linear-gradient(transparent 0 29px,#efcfda 29px 30px);padding:0 2px;min-height:120px}
+.txt span{opacity:0;transition:opacity .5s}.txt span.on{opacity:1}
+.ow{text-align:center;font-size:18px;opacity:.7;margin:8px 0 0}
+.foot{text-align:center;margin-top:10px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.gate{position:fixed;inset:0;z-index:50;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:linear-gradient(165deg,var(--bg1),var(--bg2));padding:20px;text-align:center}
+.gate.on{display:flex}
+.pane{display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;max-width:360px}
+.pane.hidden{display:none}
+.gate .lg{font:inherit;font-size:22px;letter-spacing:0;text-align:left;width:280px;max-width:86vw;padding:10px 14px;border:2px solid var(--acc);border-radius:14px;background:var(--card);color:var(--ink)}
+.gate small{color:#d63a6a;min-height:24px;font-size:17px}
+.gate h3{font-weight:400;font-size:28px;margin:0}
+.gate p{font-size:18px;margin:0;opacity:.85}
+.lg:focus{outline:none;box-shadow:0 0 0 4px var(--acc)44}
+#out{position:fixed;left:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:5;display:none;border:0;border-radius:999px;background:var(--card);color:var(--ink);padding:6px 14px;font:inherit;font-size:16px;cursor:pointer}
+#thm{position:fixed;left:14px;top:calc(12px + env(safe-area-inset-top,0px));z-index:5;width:42px;height:42px;border-radius:50%;border:0;background:var(--card);font-size:19px;cursor:pointer}
+.thp{position:fixed;left:14px;top:calc(62px + env(safe-area-inset-top,0px));z-index:6;display:none;flex-direction:column;gap:4px;padding:8px;border-radius:16px;background:#fffdfaf5;box-shadow:0 8px 24px #0004;max-height:70vh;overflow-y:auto}
+.thp.on{display:flex}.thp button{font:inherit;font-size:21px;text-align:left;border:0;border-radius:12px;padding:8px 14px;background:transparent;color:#5b3347;cursor:pointer}.thp button.on{background:var(--acc);color:#fff}
+.err{text-align:center;padding:40px;font-size:24px}
+.toast{position:fixed;left:50%;bottom:calc(30px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#2c1426e6;color:#fff;padding:10px 20px;border-radius:999px;z-index:60;font-size:20px;opacity:0;transition:opacity .4s;pointer-events:none;white-space:nowrap}.toast.on{opacity:1}
+.ripple{position:absolute;border-radius:50%;background:#fff9;transform:scale(0);animation:rip .6s ease-out forwards;pointer-events:none}
+@keyframes rip{to{transform:scale(2.4);opacity:0}}
+.spark{position:fixed;z-index:70;pointer-events:none;font-size:14px;color:var(--acc);translate:-50% -50%;animation:spark .9s ease-out forwards}
+@keyframes spark{to{opacity:0;transform:translateY(-30px) scale(.4) rotate(40deg)}}
+.fall{position:fixed;top:-30px;z-index:30;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(40deg)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none !important;transition:none !important}}
+html[data-theme="sakura"]{--ink:#7a3050;--card:#ffffffc4;--acc:#e0678f}
+html[data-theme="sakura"] body{background:radial-gradient(circle at 12% 8%,#ffd2e2 0,transparent 42%),radial-gradient(circle at 92% 28%,#e6d8ff 0,transparent 46%),radial-gradient(circle at 25% 96%,#ffe6d2 0,transparent 46%),#fff4f8;background-attachment:fixed}
+html[data-theme="sakura"] h1{color:#c4406f;text-shadow:0 2px 0 #fff,0 6px 18px #ffc2d6;background:none;-webkit-text-fill-color:initial}
+html[data-theme="sakura"] .env:not(.secret){--c:#ffdde8 !important;--c2:#ffbfd3 !important}
+html[data-theme="sakura"] .env:not(.secret):nth-child(2n){--c:#ebe0ff !important;--c2:#d4c3fa !important}
+html[data-theme="sakura"] .env:not(.secret):nth-child(3n){--c:#ffecd6 !important;--c2:#ffd3a8 !important}
+html[data-theme="vintage"]{--ink:#4f3424;--card:#fff9ebd0;--acc:#a8573a}
+html[data-theme="vintage"] body{background:radial-gradient(ellipse at center,#fff6e0 0,#eed9b2 100%),#f0e2c8;background-attachment:fixed}
+html[data-theme="vintage"] h1{color:#4f3424;letter-spacing:1px;text-shadow:0 1px 0 #fff8;background:none;-webkit-text-fill-color:initial}
+html[data-theme="vintage"] .env{--c:#ead8b2 !important;--c2:#dcc291 !important}
+html[data-theme="vintage"] .env .lbl{color:#4a2f1f}
+html[data-theme="vintage"] .stamp{border:2px dashed #a8573a99;color:#a8573a;background:#fff8}
+html[data-theme="vintage"] .letter{background:#f9eed4;border:1px solid #c9a96d}
+html[data-theme="vintage"] .letter .txt{background:repeating-linear-gradient(transparent 0 29px,#b58a4e40 29px 30px)}
+html[data-theme="winter"]{--ink:#2f4a6b;--card:#ffffffcc;--acc:#4f93d6}
+html[data-theme="winter"] body{background:radial-gradient(circle at 15% 8%,#ffffff 0,transparent 40%),radial-gradient(circle at 90% 35%,#dbe9fb 0,transparent 50%),linear-gradient(180deg,#e3effc,#f6faff);background-attachment:fixed}
+html[data-theme="winter"] h1{color:#2f5c94;text-shadow:0 2px 0 #fff,0 6px 18px #b8d4f2;background:none;-webkit-text-fill-color:initial}
+html[data-theme="winter"] .env{--c:#dcebfa !important;--c2:#bcd6f0 !important}
+html[data-theme="winter"] .env .lbl{color:#2b4766}
+html[data-theme="winter"] .letter{background:#fbfdff;color:#2f4a6b}
+html[data-theme="winter"] .letter .txt{background:repeating-linear-gradient(transparent 0 29px,#cfe0f2 29px 30px)}
+html[data-theme="sunset"]{--ink:#6b3350;--card:#fff4eacc;--acc:#e8774f}
+html[data-theme="sunset"] body{background:linear-gradient(170deg,#ffd9b8 0,#ffc2cf 48%,#d9b8f2 100%);background-attachment:fixed}
+html[data-theme="sunset"] h1{color:#c8452c;text-shadow:0 2px 0 #fff8,0 6px 20px #ffd0b0;background:none;-webkit-text-fill-color:initial}
+html[data-theme="sunset"] .env{--c:#ffe1c9 !important;--c2:#ffc09a !important}
+html[data-theme="sunset"] .env .lbl{color:#5f2d1e}
+html[data-theme="sunset"] .letter{background:#fff7ee;color:#5f2d3e}
+html[data-theme="sunset"] .letter .txt{background:repeating-linear-gradient(transparent 0 29px,#f6d3bd 29px 30px)}
+html[data-theme="lavender"]{--ink:#4d3a7a;--card:#ffffffc4;--acc:#8a63d2}
+html[data-theme="lavender"] body{background:radial-gradient(circle at 12% 10%,#e4d8fb 0,transparent 45%),radial-gradient(circle at 90% 85%,#f3d9f1 0,transparent 48%),#f7f3ff;background-attachment:fixed}
+html[data-theme="lavender"] h1{color:#6a45b8;text-shadow:0 2px 0 #fff,0 6px 18px #d9c8f7;background:none;-webkit-text-fill-color:initial}
+html[data-theme="lavender"] .env{--c:#e7ddfb !important;--c2:#cfbff3 !important}
+html[data-theme="lavender"] .env .lbl{color:#3f2c6b}
+html[data-theme="lavender"] .letter{background:#fbf8ff;color:#4d3a7a}
+html[data-theme="lavender"] .letter .txt{background:repeating-linear-gradient(transparent 0 29px,#dccff5 29px 30px)}
+html[data-theme="mint"]{--ink:#25543f;--card:#ffffffc4;--acc:#3fae82}
+html[data-theme="mint"] body{background:radial-gradient(circle at 10% 8%,#d6f1e5 0,transparent 45%),radial-gradient(circle at 92% 80%,#d3eef3 0,transparent 48%),#f3fcf8;background-attachment:fixed}
+html[data-theme="mint"] h1{color:#2f8a62;text-shadow:0 2px 0 #fff,0 6px 18px #bfe8d5;background:none;-webkit-text-fill-color:initial}
+html[data-theme="mint"] .env{--c:#d6f1e5 !important;--c2:#b2e2cc !important}
+html[data-theme="mint"] .env .lbl{color:#1f4a37}
+html[data-theme="mint"] .letter{background:#fbfffd;color:#25543f}
+html[data-theme="mint"] .letter .txt{background:repeating-linear-gradient(transparent 0 29px,#cde9dc 29px 30px)}
+html[data-theme="rose"]{--ink:#ffe9ef;--card:#ffffff14;--acc:#ff8fa8}
+html[data-theme="rose"] body{background:radial-gradient(ellipse at 50% -10%,#8a2147 0,#3d1024 55%,#1d0713 100%);background-attachment:fixed}
+html[data-theme="rose"] h1{color:#ffc2d1;text-shadow:0 0 22px #ff6f8a88;background:none;-webkit-text-fill-color:initial}
+html[data-theme="rose"] .env{--c:#5a1a36 !important;--c2:#7a2447 !important}
+html[data-theme="rose"] .env .lbl{color:#ffdbe4}
+html[data-theme="rose"] .letter{background:linear-gradient(160deg,#4a1530,#2d0c1f);color:#ffeef3}
+html[data-theme="rose"] .letter .txt{background:repeating-linear-gradient(transparent 0 29px,#ff8fa830 29px 30px)}
+html[data-theme="rose"] .letter h2{color:#ffc2d1}
+html[data-theme="rose"] .thp button.on{color:#3a0f22}
+.ov,.ov.on{background:#2c1426e6 !important}
 </style>
 </head>
 <body>
+<div class="bg" id="bg"></div>
 
-<h1>Открой, когда… 💌</h1>
-
-<!-- Выбор -->
-<div id="screen-start" class="card">
-  <button class="main" onclick="show('screen-pair-login')">Войти</button>
-  <div style="height:10px"></div>
-  <button class="main" onclick="show('screen-register')">Регистрация</button>
+<div class="gate" id="gate">
+  <div class="pane" id="scr-start">
+    <div style="font-size:54px">💌</div>
+    <div style="font-size:26px">Открой, когда…</div>
+    <button class="btn" id="b-login">Войти</button>
+    <button class="btn ghost" id="b-reg">Регистрация</button>
+  </div>
+  <div class="pane hidden" id="scr-pair">
+    <h3>Вход</h3>
+    <input class="lg" id="pl-login" placeholder="Логин" autocomplete="username">
+    <input class="lg" id="pl-pass" type="password" placeholder="Пароль" autocomplete="current-password">
+    <button class="btn" id="b-pl">Войти</button>
+    <small id="pl-msg"></small>
+    <button class="btn ghost" id="b-back1">Назад</button>
+  </div>
+  <div class="pane hidden" id="scr-reg">
+    <h3>Регистрация</h3>
+    <input class="lg" id="rg-login" placeholder="Логин (латиница, цифры, _)" autocomplete="username">
+    <input class="lg" id="rg-pass" type="password" placeholder="Пароль (минимум 8 символов)" autocomplete="new-password">
+    <input class="lg" id="rg-email" type="email" placeholder="Email (необязательно)">
+    <button class="btn" id="b-rg">Создать аккаунт</button>
+    <small id="rg-msg"></small>
+    <button class="btn ghost" id="b-back2">Назад</button>
+  </div>
+  <div class="pane hidden" id="scr-owner">
+    <h3>Мой кабинет</h3>
+    <p>Создайте пару: логин и пароль, которые получит второй человек.</p>
+    <input class="lg" id="cp-login" placeholder="Логин пары (латиница, цифры, _, -)">
+    <input class="lg" id="cp-pass" type="password" placeholder="Пароль пары (минимум 8 символов)" autocomplete="new-password">
+    <button class="btn" id="b-cp">Создать пару</button>
+    <small id="cp-msg"></small>
+    <button class="btn ghost" id="b-owout">Выйти</button>
+  </div>
 </div>
 
-<!-- Вход в пару -->
-<div id="screen-pair-login" class="card hidden">
-  <h3>Вход в пару</h3>
-  <label>Логин пары</label>
-  <input id="pl-login" autocomplete="username">
-  <label>Пароль</label>
-  <input id="pl-pass" type="password" autocomplete="current-password">
-  <button class="main" onclick="pairLogin()">Войти</button>
-  <div class="msg" id="pl-msg"></div>
-  <button class="link" onclick="show('screen-start')">Назад</button>
+<button id="thm" title="Оформление">🎨</button>
+<button id="out">⎋ Выйти</button>
+<div class="thp" id="thp">
+  <button data-th="sakura">🌸 Сакура</button>
+  <button data-th="vintage">📜 Винтаж</button>
+  <button data-th="winter">❄️ Зима</button>
+  <button data-th="sunset">🌅 Закат</button>
+  <button data-th="lavender">💜 Лаванда</button>
+  <button data-th="mint">🌿 Мята</button>
+  <button data-th="rose">🌹 Роза</button>
 </div>
 
-<!-- Регистрация владельца -->
-<div id="screen-register" class="card hidden">
-  <h3>Регистрация</h3>
-  <label>Логин (латиница, цифры, _)</label>
-  <input id="rg-login" autocomplete="username">
-  <label>Пароль (минимум 8 символов)</label>
-  <input id="rg-pass" type="password" autocomplete="new-password">
-  <label>Email (необязательно)</label>
-  <input id="rg-email" type="email">
-  <button class="main" onclick="register()">Создать аккаунт</button>
-  <div class="msg" id="rg-msg"></div>
-  <button class="link" onclick="show('screen-start')">Назад</button>
-</div>
-
-<!-- Мой кабинет владельца -->
-<div id="screen-owner" class="card hidden">
-  <h3>Мой кабинет</h3>
-  <p style="font-size:14px">Создайте пару: логин и пароль, которые получит второй человек.</p>
-  <label>Логин пары (латиница, цифры, _, -)</label>
-  <input id="cp-login">
-  <label>Пароль пары (минимум 8 символов)</label>
-  <input id="cp-pass" type="password" autocomplete="new-password">
-  <button class="main" onclick="createCouple()">Создать пару</button>
-  <div class="msg" id="cp-msg"></div>
-  <button class="link" onclick="logout()">Выйти</button>
-</div>
-
-<!-- Письма пары -->
-<div id="screen-letters" class="card hidden">
-  <h3>Письма</h3>
-  <button class="main" onclick="loadLetters()">Обновить</button>
-  <div id="letters"></div>
-  <div class="msg" id="lt-msg"></div>
-  <button class="link" onclick="logout()">Выйти</button>
-</div>
-
-<footer></footer>
+<header>
+  <h1 id="ttl">Открой, когда… 💌</h1>
+</header>
+<div class="tools"><button class="btn" id="today">💌 Письмо дня</button></div>
+<div class="view" id="view"></div>
+<div class="ov" id="ov"><div class="stage" id="stage"></div><div class="letter" id="letter"></div></div>
+<div class="toast" id="toast"></div>
 
 <script>
-const API = 'https://api.otkroikogda.ru';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const ls={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const API='/api';
+const MSG={invalid_credentials:'Неверный логин или пароль',login_taken:'Такой логин уже занят',invalid_login:'Логин: латиница, цифры, _, от 3 до 32 символов',weak_password:'Пароль минимум 8 символов',invalid_email:'Некорректный email',unauthorized:'Сессия не найдена, войдите заново',limit_reached:'Достигнут лимит тарифа',empty_letter:'Заполните заголовок и текст'};
+let letters=[],timer;
 
-function show(id) {
-  ['screen-start','screen-pair-login','screen-register','screen-owner','screen-letters']
-    .forEach(s => document.getElementById(s).classList.toggle('hidden', s !== id));
+async function call(path,body){
+  const r=await fetch(API+path,{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(body||{})});
+  let data={};try{data=await r.json()}catch(e){}
+  return{status:r.status,data};
 }
 
-async function call(path, body) {
-  const r = await fetch(API + path, {
-    method: 'POST', credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body || {})
-  });
-  let data = {};
-  try { data = await r.json(); } catch (e) {}
-  return { status: r.status, data };
+/* ---------- экраны входа ---------- */
+function showPane(id){
+  ['scr-start','scr-pair','scr-reg','scr-owner'].forEach(p=>$(p).classList.toggle('hidden',p!==id));
+  $('gate').classList.add('on');
+}
+function hideGate(){$('gate').classList.remove('on')}
+function norm(rows){return(rows||[]).map(x=>({id:x.id,title:x.title||'',text:x.body||'',open_when:x.open_when||'',emoji:'💌'}))}
+
+function startSite(){
+  hideGate();
+  $('out').style.display='block';
+  renderLetters();
 }
 
-const MESSAGES = {
-  invalid_credentials: 'Неверный логин или пароль',
-  login_taken: 'Такой логин уже занят',
-  invalid_login: 'Логин: латиница, цифры, _, от 3 до 32 символов',
-  weak_password: 'Пароль минимум 8 символов',
-  invalid_email: 'Некорректный email',
-  unauthorized: 'Сессия не найдена, войдите заново',
-  limit_reached: 'Достигнут лимит тарифа'
-};
-
-async function pairLogin() {
-  const msg = document.getElementById('pl-msg');
-  msg.textContent = '';
-  const { status, data } = await call('/rpc/couple_login', {
-    login: document.getElementById('pl-login').value,
-    password: document.getElementById('pl-pass').value
-  });
-  if (status === 200) { show('screen-letters'); loadLetters(); }
-  else msg.textContent = MESSAGES[data.message] || 'Ошибка входа';
-}
-
-async function register() {
-  const msg = document.getElementById('rg-msg');
-  msg.textContent = '';
-  const login = document.getElementById('rg-login').value.trim().toLowerCase();
-  const password = document.getElementById('rg-pass').value;
-  const email = document.getElementById('rg-email').value;
-
-  const reg = await call('/register', { login, password, email });
-  if (reg.status !== 201) {
-    msg.textContent = MESSAGES[reg.data.message] || 'Ошибка регистрации';
+async function pairLogin(){
+  const m=$('pl-msg');m.textContent='';
+  const login=$('pl-login').value.trim().toLowerCase(),password=$('pl-pass').value;
+  const r=await call('/rpc/couple_login',{login,password});
+  if(r.status===200){
+    const l=await call('/rpc/letters_list',{});
+    letters=norm(l.data.letters);
+    startSite();
     return;
   }
-  // Сразу входим под новым аккаунтом, чтобы не просить вводить логин заново
-  const log = await call('/login', { login, password });
-  if (log.status === 200) {
-    document.getElementById('rg-pass').value = '';
-    show('screen-owner');
-  } else {
-    msg.textContent = 'Аккаунт создан, но вход не выполнен. Нажмите Назад и войдите.';
+  // Если это не пара, пробуем вход владельца
+  const o=await call('/login',{login,password});
+  if(o.status===200){showPane('scr-owner');return}
+  m.textContent=MSG[r.data.message]||'Неверный логин или пароль';
+}
+
+async function register(){
+  const m=$('rg-msg');m.textContent='';
+  const login=$('rg-login').value.trim().toLowerCase(),password=$('rg-pass').value,email=$('rg-email').value.trim();
+  const reg=await call('/register',{login,password,email});
+  if(reg.status!==201){m.textContent=MSG[reg.data.message]||'Ошибка регистрации';return}
+  const log=await call('/login',{login,password});
+  if(log.status===200){$('rg-pass').value='';showPane('scr-owner');return}
+  m.textContent='Аккаунт создан, но вход не выполнен. Нажмите «Назад» и войдите.';
+}
+
+async function createCouple(){
+  const m=$('cp-msg');
+  const login=$('cp-login').value.trim().toLowerCase(),password=$('cp-pass').value;
+  const r=await call('/rpc/couple_create',{login,password});
+  if(r.status===201){
+    m.style.color='#2e7d4f';
+    m.textContent='Пара создана. Логин: '+login+'. Передайте логин и пароль второму человеку.';
+    $('cp-login').value='';$('cp-pass').value='';
+  }else{
+    m.style.color='#b0234f';
+    m.textContent=MSG[r.data.message]||'Не удалось создать пару';
   }
 }
 
-async function createCouple() {
-  const msg = document.getElementById('cp-msg');
-  msg.textContent = '';
-  const login = document.getElementById('cp-login').value.trim().toLowerCase();
-  const password = document.getElementById('cp-pass').value;
-  const { status, data } = await call('/rpc/couple_create', { login, password });
-  if (status === 201) {
-    msg.style.color = '#2e7d4f';
-    msg.textContent = 'Пара создана. Логин: ' + login + '. Передайте логин и пароль второму человеку.';
-    document.getElementById('cp-login').value = '';
-    document.getElementById('cp-pass').value = '';
-  } else {
-    msg.style.color = '#b0234f';
-    msg.textContent = MESSAGES[data.message] || 'Не удалось создать пару';
-  }
+async function logout(){
+  await call('/logout',{});
+  location.reload();
 }
 
-async function loadLetters() {
-  const box = document.getElementById('letters');
-  const msg = document.getElementById('lt-msg');
-  msg.textContent = '';
-  const { status, data } = await call('/rpc/letters_list', {});
-  if (status !== 200) { msg.textContent = MESSAGES[data.message] || 'Не удалось загрузить письма'; return; }
-  box.innerHTML = '';
-  if (!data.letters.length) { box.textContent = 'Писем пока нет.'; return; }
-  for (const l of data.letters) {
-    const div = document.createElement('div');
-    div.className = 'letter';
-    div.innerHTML = '<b></b><div></div><small></small>';
-    div.querySelector('b').textContent = l.title;
-    div.querySelector('div').textContent = l.body;
-    div.querySelector('small').textContent = l.open_when ? 'Открыть: ' + l.open_when : '';
-    box.appendChild(div);
-  }
+/* ---------- письма ---------- */
+const unlockAt=null;
+const ruDate=d=>d.toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
+const envLabel=l=>{const t=(l.title||'').replace(/^Открой,?\s*/i,'');return t.charAt(0).toUpperCase()+t.slice(1)};
+function envInner(l){return `<div class="eb"></div><div class="ef"></div><div class="stamp">♡</div><div class="seal">${esc(l.emoji)}</div><div class="lbl">${esc(envLabel(l))}</div>`}
+
+function renderLetters(){
+  const v=$('view');
+  v.innerHTML='<div class="grid" id="grid"></div>';
+  const g=$('grid');
+  if(!letters.length){v.innerHTML='<div class="err">Писем пока нет 💌</div>';return}
+  const read=ls.get('ow_read')||[];
+  letters.forEach(l=>{
+    const d=document.createElement('div');
+    d.className='env';
+    d.style.cssText='--c:#fbd3de;--c2:#f4b6c8';
+    d.innerHTML=envInner(l)+(!read.includes(l.id)?'<div class="badge">новое</div>':'');
+    d.onclick=()=>open(l);
+    g.appendChild(d);
+  });
 }
 
-async function logout() {
-  await call('/logout', {});
-  show('screen-start');
+function open(l){
+  clearInterval(timer);
+  const st=$('stage'),lt=$('letter');
+  st.className='stage';
+  st.innerHTML=`<div class="env" style="--c:#fbd3de;--c2:#f4b6c8">${envInner(l)}</div>`;
+  lt.className='letter';lt.innerHTML='';
+  $('ov').classList.add('on');
+  setTimeout(()=>st.classList.add('open'),800);
+  setTimeout(()=>{build(l);lt.classList.add('on');st.classList.add('gone')},1500);
 }
+
+function build(l){
+  const lt=$('letter');
+  const words=l.text.split(/(\s+)/).map(w=>/^\s+$/.test(w)||!w?w:`<span>${esc(w)}</span>`).join('');
+  lt.innerHTML=`<h2>${esc(l.emoji)} ${esc(l.title)}</h2><div class="scr" id="scr"><div class="txt" id="txt">${words}</div></div>${l.open_when?`<p class="ow">Открыть: ${esc(l.open_when)}</p>`:''}<div class="foot" id="foot" style="visibility:hidden"><button class="btn" id="cl">Закрыть письмо</button></div>`;
+  $('cl').onclick=close;
+  const sp=[...lt.querySelectorAll('.txt span')];
+  let i=0;
+  const done=()=>{
+    if(done.f)return;done.f=1;
+    clearInterval(timer);
+    sp.forEach(s=>s.classList.add('on'));
+    $('foot').style.visibility='visible';
+    const r=ls.get('ow_read')||[];
+    if(!r.includes(l.id)){r.push(l.id);ls.set('ow_read',r)}
+  };
+  timer=setInterval(()=>{
+    if(i>=sp.length){done();return}
+    sp[i].classList.add('on');
+    const t=$('scr');t.scrollTop=t.scrollHeight;
+    i++;
+  },55);
+  $('txt').onclick=done;
+}
+
+function close(){
+  clearInterval(timer);
+  $('ov').classList.remove('on');
+  $('letter').className='letter';
+  $('letter').innerHTML='';
+  renderLetters();
+}
+
+$('today').onclick=()=>{
+  if(!letters.length)return;
+  const d=new Date();
+  const k=d.getFullYear()*372+d.getMonth()*31+d.getDate();
+  open(letters[k%letters.length]);
+};
+
+/* ---------- тема ---------- */
+const TC={sakura:'#f7c9d8',vintage:'#eed9b2',winter:'#e3effc',sunset:'#ffc9c6',lavender:'#ece4fb',mint:'#e3f6ee',rose:'#3d1024'};
+function applyTheme(t,save){
+  if(!TC[t])t='sakura';
+  const d=document.documentElement;d.dataset.theme=t;
+  const m=document.querySelector('meta[name=theme-color]');m&&m.setAttribute('content',TC[t]);
+  document.querySelectorAll('.thp button').forEach(b=>b.classList.toggle('on',b.dataset.th===t));
+  if(save)ls.set('ow_theme2',t);
+}
+applyTheme(ls.get('ow_theme2')||'sakura');
+$('thm').onclick=e=>{e.stopPropagation();$('thp').classList.toggle('on')};
+document.querySelectorAll('.thp button').forEach(b=>b.onclick=e=>{e.stopPropagation();applyTheme(b.dataset.th,true);$('thp').classList.remove('on')});
+document.addEventListener('click',()=>$('thp').classList.remove('on'));
+
+/* ---------- фон с лепестками ---------- */
+const mo=new Date().getMonth(),SEA=(mo===11||mo<2)?['❄️','🤍','✨','❄️','💗']:mo<5?['🌸','🌷','💗','🌸','✨']:mo<8?['✨','💗','🦋','🌼','🤍']:['🍂','🍁','💗','🍂','✨'];
+for(let i=0;i<14;i++){
+  const s=document.createElement('span');s.textContent=SEA[i%5];
+  s.style.cssText=`left:${Math.random()*100}%;font-size:${12+Math.random()*16}px;animation-duration:${14+Math.random()*16}s;animation-delay:-${Math.random()*20}s`;
+  $('bg').appendChild(s);
+}
+
+/* ---------- кнопки ---------- */
+$('b-login').onclick=()=>showPane('scr-pair');
+$('b-reg').onclick=()=>showPane('scr-reg');
+$('b-back1').onclick=()=>showPane('scr-start');
+$('b-back2').onclick=()=>showPane('scr-start');
+$('b-pl').onclick=pairLogin;
+$('pl-pass').onkeydown=e=>{if(e.key==='Enter')pairLogin()};
+$('b-rg').onclick=register;
+$('b-cp').onclick=createCouple;
+$('b-owout').onclick=logout;
+$('out').onclick=logout;
+
+/* ---------- запуск ---------- */
+async function init(){
+  const r=await call('/rpc/letters_list',{});
+  if(r.status===200){
+    letters=norm(r.data.letters);
+    startSite();
+  }else{
+    showPane('scr-start');
+  }
+}
+init();
 </script>
 </body>
 </html>
